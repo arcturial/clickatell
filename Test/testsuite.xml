@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit>
+    <testsuites>
+        <testsuite name="ClickatellSuite">
+            <file>Cases/ClickatellTest.php</file>
+            <file>Cases/ClickatellContainerTest.php</file>
+        </testsuite>
+
+        <testsuite name="ClickatellComponentSuite">
+            <file>Cases/Component/RequestTest.php</file>
+            <file>Cases/Component/ActionTest.php</file>
+            <file>Cases/Component/TransportTest.php</file>
+            <file>Cases/Component/ValidateTest.php</file>
+        </testsuite>
+
+        <testsuite name="ClickatellComponentTransferSuite">
+            <file>Cases/Component/Transfer/TransferCurlTest.php</file>
+        </testsuite>
+
+        <testsuite name="ClickatellComponentTranslateSuite">
+            <file>Cases/Component/Translate/TranslateJsongTest.php</file>
+        </testsuite>
+
+        <testsuite name="ClickatellComponentTransportSuite">
+            <file>Cases/Component/Transport/TransportHttpTest.php</file>
+            <file>Cases/Component/Transport/TransportXmlTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
