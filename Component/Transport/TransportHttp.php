@@ -13,7 +13,7 @@ use Clickatell\Exception\Diagnostic as Diagnostic;
  * @package Clickatell\Component\Transport
  * @author Chris Brand
  */
-class TransportHttp extends Transport
+class TransportHttp extends Transport implements TransportInterfaceExtract
 {   
 	/**
 	 * "sendMsg" endpoint
@@ -45,6 +45,27 @@ class TransportHttp extends Transport
 	 */
 	const ENDPOINT_MESSAGE_CHARGE	= "http://api.clickatell.com/http/getmsgcharge";
 
+	/**
+     * Extracts the result from the framework into an associative
+     * array.
+     *
+     * @param string $response
+     * @return array
+     */
+    public function extract($response)
+    {
+        preg_match_all("/([A-Za-z]+):((.(?![A-Za-z]+:))*)/", $response, $matches);
+
+		$result = array();
+
+    	foreach ($matches[1] as $index => $status)
+    	{
+    		$result[$status] = trim($matches[2][$index]);
+    	}
+
+    	return $result;
+    }
+    
 	/**
 	 * Morphs the Request object parameters into
 	 * a suitable query string.
@@ -90,7 +111,7 @@ class TransportHttp extends Transport
 
 		$response = $this->transfer()->execute(self::ENDPOINT_SEND_MSG, $this->buildPost($this->request()));
 
-		$result = $this->handleResponse($response);
+		$result = $this->extract($response);
 
 		if (isset($result['ERR']))
 		{
@@ -116,7 +137,7 @@ class TransportHttp extends Transport
 
     	$result = explode(":", $response);
 
-    	$result = $this->handleResponse($response);
+    	$result = $this->extract($response);
 
 		if (isset($result['ERR']))
 		{
@@ -143,7 +164,7 @@ class TransportHttp extends Transport
 
     	$response = $this->transfer()->execute(self::ENDPOINT_QUERY_MESSAGE, $this->buildPost($this->request()));
 
-    	$result = $this->handleResponse($response);
+    	$result = $this->extract($response);
 
 		if (isset($result['ERR']))
 		{
@@ -172,7 +193,7 @@ class TransportHttp extends Transport
 
     	$response = $this->transfer()->execute(self::ENDPOINT_ROUTE_COVERAGE, $this->buildPost($this->request()));
 
-    	$result = $this->handleResponse($response);
+    	$result = $this->extract($response);
 
     	if (isset($result['ERR']))
 		{
@@ -200,7 +221,7 @@ class TransportHttp extends Transport
 
     	$response = $this->transfer()->execute(self::ENDPOINT_MESSAGE_CHARGE, $this->buildPost($this->request()));
     	
-    	$result = $this->handleResponse($response);
+    	$result = $this->extract($response);
 
     	if (isset($result['ERR']))
 		{
@@ -216,26 +237,5 @@ class TransportHttp extends Transport
 
 			return $this->wrapResponse(Transport::RESULT_SUCCESS, $packet);	
 		}
-    }
-
-    /**
-     * This function takes the response from Clickatell and
-     * wraps them into an array with $key => $value pair.
-     *
-     * @param string $response
-     * @return array
-     */
-    public function handleResponse($response)
-    {
-    	preg_match_all("/([A-Za-z]+):((.(?![A-Za-z]+:))*)/", $response, $matches);
-
-		$result = array();
-
-    	foreach ($matches[1] as $index => $status)
-    	{
-    		$result[$status] = trim($matches[2][$index]);
-    	}
-
-    	return $result;	
     }
 }

@@ -67,6 +67,27 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test the functionality to convert the xml response to an
+     * associative array.
+     *
+     * @return boolean
+     */
+    public function testExtract()
+    {
+        $apiMsgId = "1234567890";
+
+        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $request = $this->getMockBuilder("Clickatell\Component\Request")
+                        ->disableOriginalConstructor()
+                        ->getMock();
+
+        $transport = new TransportXml($transfer, $request);
+        $result = $transport->extract("<clickAPI><sendMsgResp><apiMsgId>" . $apiMsgId . "</apiMsgId></sendMsgResp></clickAPI>");
+
+        $this->assertSame(array("apiMsgId" => $apiMsgId), $result);  
+    }
+
+    /**
      * Ensures that the buildPost() method for the XML transport builds the
      * packet the way Clickatell expects it.
      *

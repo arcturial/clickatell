@@ -58,10 +58,12 @@ class Clickatell
     public function __construct($username, $password, $apiId, $transport = null)
     {
         spl_autoload_register(function($class) {
+
+            $class = preg_replace("/Clickatell\\\/", "", $class);
             
-            if (is_file(__DIR__ . "/" . trim($class, "Clickatell\\") . ".php"))
+            if (is_file(__DIR__ . "/" . $class . ".php"))
             {
-                require_once __DIR__ . "/" . trim($class, "Clickatell\\") . ".php";   
+                require_once __DIR__ . "/" . $class . ".php";   
             }
         });
 

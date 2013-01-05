@@ -4,6 +4,7 @@ namespace Clickatell\Component\Transport;
 use Clickatell\Component\Request as Request;
 use Clickatell\Component\Transport as Transport;
 use Clickatell\Exception\Diagnostic as Diagnostic;
+use Clickatell\Component\Transport\TransportInterfaceExtract as TransportInterfaceExtract;
 
 /**
  * This is the XML interface to Clickatell. It wraps requests
@@ -13,13 +14,35 @@ use Clickatell\Exception\Diagnostic as Diagnostic;
  * @package Clickatell\Component\Transport
  * @author Chris Brand
  */
-class TransportXml extends Transport
+class TransportXml extends Transport implements TransportInterfaceExtract
 {   
     /**
      * XML endpoint
      * @var string
      */
     const XML_ENDPOINT = "http://api.clickatell.com/xml/xml";
+
+    /**
+     * Extracts the result from the framework into an associative
+     * array.
+     *
+     * @param string $response
+     * @return array
+     */
+    public function extract($response)
+    {
+        $iterator = new \SimpleXMLIterator($response);
+        $iterator->rewind();
+        
+        $result = array();
+
+        foreach ($iterator->getChildren() as $elementName => $node)
+        {
+            $result[$elementName] = (string) $node;
+        }
+
+        return $result;
+    }
 
     /**
      * This builds the xml packet from the Request object
@@ -74,21 +97,20 @@ class TransportXml extends Transport
 
         $response = $this->transfer()->execute(self::XML_ENDPOINT, $this->buildPost($this->request()));
 
-        #-> Convert response into xml object
-        $xml = simplexml_load_string($response);
-        $xml = $xml->sendMsgResp;
+        #-> Convert response into associative array
+        $result = $this->extract($response);
 
         #-> Check if it's a failure
-        if (property_exists($xml, "fault"))
+        if (isset($result['fault']))
         {
-            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $xml->fault);
+            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $result['fault']);
         }
         else
         {
-            $result = array();
-            $result['apiMsgId'] = (string) $xml->apiMsgId;
+            $packet = array();
+            $packet['apiMsgId'] = (string) $result['apiMsgId'];
 
-            return $this->wrapResponse(Transport::RESULT_SUCCESS, $result);
+            return $this->wrapResponse(Transport::RESULT_SUCCESS, $packet); 
         }
 	}
 
@@ -105,21 +127,20 @@ class TransportXml extends Transport
 
         $response = $this->transfer()->execute(self::XML_ENDPOINT, $this->buildPost($this->request()));
 
-        #-> Convert response into xml object
-        $xml = simplexml_load_string($response);
-        $xml = $xml->getBalanceResp;
+        #-> Convert response into associative array
+        $result = $this->extract($response);
 
         #-> Check if it's a failure
-        if (property_exists($xml, "fault"))
+        if (isset($result['fault']))
         {
-            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $xml->fault);
+            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $result['fault']);
         }
         else
         {
-            $result = array();
-            $result['balance'] = (float) $xml->ok;
+            $packet = array();
+            $packet['balance'] = (float) $result['ok'];
 
-            return $this->wrapResponse(Transport::RESULT_SUCCESS, $result);
+            return $this->wrapResponse(Transport::RESULT_SUCCESS, $packet); 
         }
     }
 
@@ -139,23 +160,22 @@ class TransportXml extends Transport
 
         $response = $this->transfer()->execute(self::XML_ENDPOINT, $this->buildPost($this->request()));
 
-        #-> Convert response into xml object
-        $xml = simplexml_load_string($response);
-        $xml = $xml->queryMsgResp;
-
+        #-> Convert response into associative array
+        $result = $this->extract($response);
+        
         #-> Check if it's a failure
-        if (property_exists($xml, "fault"))
+        if (isset($result['fault']))
         {
-            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $xml->fault);
+            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $result['fault']);
         }
         else
         {
-            $result = array();
-            $result['apiMsgId'] = (string) $xml->apiMsgId;
-            $result['status'] = trim((string) $xml->status);
-            $result['description'] = Diagnostic::getError($result['status']);
+            $packet = array();
+            $packet['apiMsgId'] = (string) $result['apiMsgId'];
+            $packet['status'] = trim((string) $result['status']);
+            $packet['description'] = Diagnostic::getError($result['status']);
 
-            return $this->wrapResponse(Transport::RESULT_SUCCESS, $result);
+            return $this->wrapResponse(Transport::RESULT_SUCCESS, $packet); 
         }
     }
 
@@ -175,22 +195,21 @@ class TransportXml extends Transport
 
         $response = $this->transfer()->execute(self::XML_ENDPOINT, $this->buildPost($this->request()));
 
-        #-> Convert response into xml object
-        $xml = simplexml_load_string($response);
-        $xml = $xml->routeCoverageResp;
+        #-> Convert response into associative array
+        $result = $this->extract($response);
 
         #-> Check if it's a failure
-        if (property_exists($xml, "fault"))
+        if (isset($result['fault']))
         {
-            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $xml->fault);
+            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $result['fault']);
         }
         else
         {
-            $result = array();
-            $result['description'] = (string) $xml->ok;
-            $result['charge'] = (float) $xml->charge;
+            $packet = array();
+            $packet['description'] = (string) $result['ok'];
+            $packet['charge'] = (float) $result['charge'];
 
-            return $this->wrapResponse(Transport::RESULT_SUCCESS, $result);
+            return $this->wrapResponse(Transport::RESULT_SUCCESS, $packet); 
         }
     }
 
@@ -210,24 +229,23 @@ class TransportXml extends Transport
 
         $response = $this->transfer()->execute(self::XML_ENDPOINT, $this->buildPost($this->request()));
 
-        #-> Convert response into xml object
-        $xml = simplexml_load_string($response);
-        $xml = $xml->getMsgChargeResp;
+        #-> Convert response into associative array
+        $result = $this->extract($response);
 
         #-> Check if it's a failure
-        if (property_exists($xml, "fault"))
+        if (isset($result['fault']))
         {
-            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $xml->fault);
+            return $this->wrapResponse(Transport::RESULT_FAILURE, (string) $result['fault']);
         }
         else
         {
-            $result = array();
-            $result['apiMsgId'] = (string) $xml->apiMsgId;
-            $result['status'] = trim((string) $xml->status);
-            $result['description'] = Diagnostic::getError($result['status']);
-            $result['charge'] = (float) $xml->charge;
+            $packet = array();
+            $packet['apiMsgId'] = (string) $result['apiMsgId'];
+            $packet['status'] = trim((string) $result['status']);
+            $packet['description'] = Diagnostic::getError($result['status']);
+            $packet['charge'] = (float) $result['charge'];
 
-            return $this->wrapResponse(Transport::RESULT_SUCCESS, $result);
+            return $this->wrapResponse(Transport::RESULT_SUCCESS, $packet); 
         }
     }
 }

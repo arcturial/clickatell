@@ -48,7 +48,7 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
      *
      * @return boolean
      */
-    public function testHandleResponse()
+    public function testExtract()
     {
       	$transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
         $request = $this->getMockBuilder("Clickatell\Component\Request")
@@ -56,7 +56,7 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
                         ->getMock();
 
         $transport = new TransportHttp($transfer, $request);
-        $result = $transport->handleResponse("OK: Ok Message Credit: 5");
+        $result = $transport->extract("OK: Ok Message Credit: 5");
 
         $this->assertSame(array("OK" => "Ok Message", "Credit" => "5"), $result);  
     }
