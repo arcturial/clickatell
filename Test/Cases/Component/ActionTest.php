@@ -1,7 +1,22 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Test\Cases\Component;
 
-#-> Add's an autoloader to load test dependencies
+// Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../../autoload.php";
 
 use Clickatell\Component\Action as Action;
@@ -11,8 +26,11 @@ use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
  * Test Suite for testing the Action handler and ensures
  * that it correctly wraps the Transport and Translate interfaces.
  *
- * @package Clickatell\Test\Cases\Component
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class ActionTest extends PHPUnit_Framework_TestCase
 {
@@ -26,16 +44,22 @@ class ActionTest extends PHPUnit_Framework_TestCase
     {
         $result = array("method callable");
 
-        $transport = $this->getMock("Clickatell\Component\Transport\TransportInterface");
-        $transport->expects($this->any())
-                  ->method('sendMessage')
-                  ->will($this->returnValue($result));
+        $transport = $this->getMock(
+            "Clickatell\Component\Transport\TransportInterface"
+        );
 
-        $translate = $this->getMock("Clickatell\Component\Translate\TranslateInterface");
+        $transport->expects($this->any())
+            ->method('sendMessage')
+            ->will($this->returnValue($result));
+
+        $translate = $this->getMock(
+            "Clickatell\Component\Translate\TranslateInterface"
+        );
+        
         $translate->expects($this->any())
-                  ->method('translate')
-                  ->with($this->equalTo($result))
-                  ->will($this->returnValue($result));
+            ->method('translate')
+            ->with($this->equalTo($result))
+            ->will($this->returnValue($result));
 
         $action = new Action($transport, $translate);
 

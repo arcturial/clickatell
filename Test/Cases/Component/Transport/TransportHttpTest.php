@@ -1,7 +1,22 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component\Transport
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Test\Cases\Component\Transport;
 
-#-> Add's an autoloader to load test dependencies
+// Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../../../autoload.php";
 
 use Clickatell\Component\Transport\TransportHttp as TransportHttp;
@@ -14,8 +29,11 @@ use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
  * ensures that all the HTTP API requests response as expected
  * and that the utility functions handle it's input/output correctly.
  *
- * @package Clickatell\Test\Cases\Component\Transport
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component\Transport
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class TransportHttpTest extends PHPUnit_Framework_TestCase
 {
@@ -27,14 +45,17 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
      */
     public function testBuildPost()
     {
-    	$transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-        		->method('getParams')
-                ->will($this->returnValue(array("to" => 12345)));
+            ->method('getParams')
+            ->will($this->returnValue(array("to" => 12345)));
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->buildPost($request);
@@ -43,17 +64,21 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * HTTP responses are a bit sporadic. This ensures that the function responsible
-     * for taking the string and parsing it into an array is still working as expected.
+     * HTTP responses are a bit sporadic. This ensures that the 
+     * function responsible for taking the string and 
+     * parsing it into an array is still working as expected.
      *
      * @return boolean
      */
     public function testExtract()
     {
-      	$transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->extract("OK: Ok Message Credit: 5");
@@ -62,8 +87,9 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensures that "sendMsg" HTTP call is working as expected and returns the correctly
-     * wrapped array for a successful call.
+     * Ensures that "sendMsg" HTTP call is working as 
+     * expected and returns the correctly wrapped array 
+     * for a successful call.
      *
      * @return boolean.
      */
@@ -74,19 +100,24 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
         $apiMsgId = "1234567890";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("to" => $to, "text" => $message)));
+            ->method('getParams')
+            ->will($this->returnValue(array("to" => $to, "text" => $message)));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportHttp::ENDPOINT_SEND_MSG), "to=" . $to . "&text=" . $message)
-                 ->will($this->returnValue("ID: " . $apiMsgId));
-
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportHttp::ENDPOINT_SEND_MSG), 
+                "to=" . $to . "&text=" . $message
+            )
+            ->will($this->returnValue("ID: " . $apiMsgId));
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->sendMessage($to, $message);
@@ -105,19 +136,21 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
         $balance = "5";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array()));
+            ->method('getParams')
+            ->will($this->returnValue(array()));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportHttp::ENDPOINT_GET_BALANCE), "")
-                 ->will($this->returnValue("Credit: " . $balance));
-
+            ->method("execute")
+            ->with($this->equalTo(TransportHttp::ENDPOINT_GET_BALANCE), "")
+            ->will($this->returnValue("Credit: " . $balance));
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->getBalance();
@@ -139,19 +172,24 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
         $apiMsgId = "1234567890";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("apiMsgId" => $apiMsgId)));
+            ->method('getParams')
+            ->will($this->returnValue(array("apiMsgId" => $apiMsgId)));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportHttp::ENDPOINT_QUERY_MESSAGE), "apiMsgId=" . $apiMsgId)
-                 ->will($this->returnValue("ID: " . $apiMsgId . " Status: 001"));
-
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportHttp::ENDPOINT_QUERY_MESSAGE), 
+                "apiMsgId=" . $apiMsgId
+            )
+            ->will($this->returnValue("ID: " . $apiMsgId . " Status: 001"));
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->queryMessage($apiMsgId);
@@ -163,7 +201,8 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the "routeCoverage" HTTP call and ensures the response is wrapped correctly.
+     * Tests the "routeCoverage" HTTP call and ensures the 
+     * response is wrapped correctly.
      *
      * @return boolean
      */
@@ -174,19 +213,24 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
         $charge = 1;
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("msisdn" => $msisdn)));
+            ->method('getParams')
+            ->will($this->returnValue(array("msisdn" => $msisdn)));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportHttp::ENDPOINT_ROUTE_COVERAGE), "msisdn=" . $msisdn)
-                 ->will($this->returnValue("OK: " . $message. " Charge: " . $charge));
-
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportHttp::ENDPOINT_ROUTE_COVERAGE), 
+                "msisdn=" . $msisdn
+            )
+            ->will($this->returnValue("OK: " . $message. " Charge: " . $charge));
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->routeCoverage($msisdn);
@@ -209,19 +253,33 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
         $apiMsgId = "1234567890";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("apiMsgId" => $apiMsgId)));
+            ->method('getParams')
+            ->will($this->returnValue(array("apiMsgId" => $apiMsgId)));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportHttp::ENDPOINT_MESSAGE_CHARGE), "apiMsgId=" . $apiMsgId)
-                 ->will($this->returnValue("apiMsgId: " . $apiMsgId . " status: " . $status . " charge: " . $charge));
-
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportHttp::ENDPOINT_MESSAGE_CHARGE), 
+                "apiMsgId=" . $apiMsgId
+            )
+            ->will(
+                $this->returnValue(
+                    "apiMsgId: " 
+                    . $apiMsgId . 
+                    " status: " 
+                    . $status . 
+                    " charge: " 
+                    . $charge
+                )
+            );
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->getMessageCharge($apiMsgId);
@@ -243,19 +301,21 @@ class TransportHttpTest extends PHPUnit_Framework_TestCase
         $error = "Error Message";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array()));
+            ->method('getParams')
+            ->will($this->returnValue(array()));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+        
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportHttp::ENDPOINT_SEND_MSG), "")
-                 ->will($this->returnValue("ERR: " . $error));
-
+            ->method("execute")
+            ->with($this->equalTo(TransportHttp::ENDPOINT_SEND_MSG), "")
+            ->will($this->returnValue("ERR: " . $error));
 
         $transport = new TransportHttp($transfer, $request);
         $result = $transport->sendMessage(12345, "");

@@ -1,7 +1,22 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Test\Cases;
 
-#-> Add's an autoloader to load test dependencies
+// Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../autoload.php";
 
 use Clickatell\ClickatellContainer as ClickatellContainer;
@@ -12,8 +27,11 @@ use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
  * Test Suite for testing the Container class that serves as
  * an object factory and dependency injector.
  *
- * @package Clickatell\Test\Cases
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class ClickatellContainerTest extends PHPUnit_Framework_TestCase
 {
@@ -25,11 +43,21 @@ class ClickatellContainerTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateRequest()
     {
-        $transport = $this->getMock("Clickatell\Component\Transport\TransportInterface");
+        $transport = $this->getMock(
+            "Clickatell\Component\Transport\TransportInterface"
+        );
 
-        $request = ClickatellContainer::createRequest("username", "password", 12345, $transport);
+        $request = ClickatellContainer::createRequest(
+            "username", 
+            "password", 
+            12345, 
+            $transport
+        );
 
-        $this->assertInstanceOf("Clickatell\Component\Request", $request);
+        $this->assertInstanceOf(
+            "Clickatell\Component\Request", 
+            $request
+        );
     }
 
     /**
@@ -39,8 +67,13 @@ class ClickatellContainerTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateAction()
     {
-        $transport = $this->getMock("Clickatell\Component\Transport\TransportInterface");
-        $translate = $this->getMock("Clickatell\Component\Translate\TranslateInterface");
+        $transport = $this->getMock(
+            "Clickatell\Component\Transport\TransportInterface"
+        );
+
+        $translate = $this->getMock(
+            "Clickatell\Component\Translate\TranslateInterface"
+        );
 
         $action = ClickatellContainer::createAction($transport, $translate);
 
@@ -56,16 +89,23 @@ class ClickatellContainerTest extends PHPUnit_Framework_TestCase
     public function testCreateTransport()
     {
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $action = ClickatellContainer::createTransport(Clickatell::TRANSPORT_HTTP, $request);
+        $action = ClickatellContainer::createTransport(
+            Clickatell::TRANSPORT_HTTP, 
+            $request
+        );
 
-        $this->assertInstanceOf("Clickatell\Component\Transport\TransportInterface", $action);
+        $this->assertInstanceOf(
+            "Clickatell\Component\Transport\TransportInterface", 
+            $action
+        );
     }
 
     /**
-     * Creates a transfer object of instance Clickatell\Component\Transfer\TransferInterface
+     * Creates a transfer object of
+     * instance Clickatell\Component\Transfer\TransferInterface
      *
      * @return boolean
      */
@@ -73,6 +113,9 @@ class ClickatellContainerTest extends PHPUnit_Framework_TestCase
     {
         $transfer = ClickatellContainer::createTransfer();
 
-        $this->assertInstanceOf("Clickatell\Component\Transfer\TransferInterface", $transfer);
+        $this->assertInstanceOf(
+            "Clickatell\Component\Transfer\TransferInterface",
+            $transfer
+        );
     }
 }

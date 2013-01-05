@@ -1,4 +1,19 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell;
 
 use Clickatell\Component\Transport\TransportInterface as TransportInterface;
@@ -10,8 +25,11 @@ use Clickatell\ClickatellContainer as ClickatellContainer;
  * send Clickatell calls and respond in an appropriate manner. The messenger class
  * enables you to set your own Transport and Translate interfaces.
  *
- * @package Clickatell
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class Clickatell
 {
@@ -19,13 +37,13 @@ class Clickatell
      * The HTTP Transport Interface
      * @var string
      */
-    const TRANSPORT_HTTP    = "Clickatell\Component\Transport\TransportHttp";
+    const TRANSPORT_HTTP = "Clickatell\Component\Transport\TransportHttp";
 
     /**
      * The XML Transport Interface
      * @var string
      */
-    const TRANSPORT_XML     = "Clickatell\Component\Transport\TransportXml";
+    const TRANSPORT_XML = "Clickatell\Component\Transport\TransportXml";
 
     /**
      * The Request Object associated with a Clickatell call.
@@ -49,38 +67,53 @@ class Clickatell
      * Clickatell Messenger Instantiation. Creates the Transport/Translate/Request
      * interfaces required.
      *
-     * @param string $username
-     * @param string $password
-     * @param int $apiId
-     * @param $transport Clickatell\Component\Transport
+     * @param string                         $username  API username
+     * @param string                         $password  API password
+     * @param int                            $apiId     API ID (Sub-product ID)
+     * @param Clickatell\Component\Transport $transport Transport protocol to use
+     *
      * @return boolean
      */
     public function __construct($username, $password, $apiId, $transport = null)
     {
-        spl_autoload_register(function($class) {
+        // Register autoloader
+        $autoload = function ($class) {
 
             $class = preg_replace("/Clickatell\\\/", "", $class);
             
-            if (is_file(__DIR__ . "/" . $class . ".php"))
-            {
-                require_once __DIR__ . "/" . $class . ".php";   
+            if (is_file(__DIR__ . "/" . $class . ".php")) {
+                include_once __DIR__ . "/" . $class . ".php";   
             }
-        });
 
-        if ($transport == null)
-        {
+        };
+
+        spl_autoload_register($autoload);
+
+        // Set default Transport protocol
+        if ($transport == null) {
             $transport = self::TRANSPORT_HTTP;
         }
 
-        $this->_request = ClickatellContainer::createRequest($username, $password, $apiId);
-        $this->_transport = ClickatellContainer::createTransport($transport, $this->_request);
+        // Dependencies
+        $this->_request = ClickatellContainer::createRequest(
+            $username, 
+            $password, 
+            $apiId
+        );
+
+        $this->_transport = ClickatellContainer::createTransport(
+            $transport, 
+            $this->_request
+        );
+
         $this->_translate = ClickatellContainer::createTranslate();
     }
 
     /**
      * Sets the Transport interface the Messenger should use.
      *
-     * @param Clickatell\Component\Transport\TransportInterface $transport
+     * @param Clickatell\Component\Transport\TransportInterface $transport Transport protocol to use
+     *
      * @return boolean
      */
     public function setTransport(TransportInterface $transport)
@@ -101,7 +134,8 @@ class Clickatell
     /**
      * Sets the Translate interface the Messenger should use.
      *
-     * @param Cliclatell\Component\Translate\TranslateInterface $translate
+     * @param Cliclatell\Component\Translate\TranslateInterface $translate Translate interface to use
+     *
      * @return boolean
      */
     public function setTranslate(TranslateInterface $translate)
@@ -130,17 +164,22 @@ class Clickatell
     }
 
     /**
-     * Magic to forward an API request to the Transport interface. The Transport
-     * interface then ensures the method exists and connects to Clickatell to complete
-     * the call. The messenger uses an Action object (the handler) to group these tasks.
+     * Magic to forward an API request to the Transport interface. 
+     * The Transport interface then ensures the method exists and 
+     * connects to Clickatell to complete the call. The messenger 
+     * uses an Action object (the handler) to group these tasks.
      *
-     * @param string $name
-     * @param array $arguments
+     * @param string $name      Method name
+     * @param array  $arguments Method arguments
+     *
      * @return mixed
      */
     public function __call($name, $arguments)
     {
-        $action = ClickatellContainer::createAction($this->_transport, $this->_translate);
+        $action = ClickatellContainer::createAction(
+            $this->_transport, 
+            $this->_translate
+        );
 
         return call_user_func_array(array($action, $name), $arguments);
     }

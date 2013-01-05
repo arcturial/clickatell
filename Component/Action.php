@@ -1,4 +1,19 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Component;
 
 use Clickatell\Component\Transport\TransportInterface as TransportInterface;
@@ -11,8 +26,11 @@ use \ReflectionMethod as ReflectionMethod;
  * the request to the Transport and Translater together and returns
  * a nicely translated response to the Messenger object.
  *
- * @package Clickatell\Component
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class Action
 {
@@ -30,11 +48,12 @@ class Action
 
     /**
      * Action handler requires you to give it the desired Transport Interface and
-     * the desired Translater. These objects can be manipulated through the Messenger class.
+     * the desired Translater. These objects can be manipulated 
+     * through the Messenger class. @see Clickatell\Clickatell.php
      *
-     * @see Clickatell\Clickatell.php
-     * @param Clickatell\Component\Transport\TransportInterface $transport
-     * @param Clickatell\Component\Translate\TranslateInterface $translate
+     * @param Clickatell\Component\Transport\TransportInterface $transport Transport protocol to use
+     * @param Clickatell\Component\Translate\TranslateInterface $translate Translate protocol to use
+     *
      * @return boolean
      */
     public function __construct(TransportInterface $transport, TranslateInterface $translate)
@@ -57,19 +76,22 @@ class Action
      * Magic to forward the request from the Messenger on to the Transport associated
      * with this Action. It also ensures that the request is actually supported.
      *
-     * @param string $name
-     * @param array $arguments
+     * @param string $name      Method name
+     * @param array  $arguments Method arguments
+     *
      * @return mixed
      * @throws Clickatell\Exception\TransportException
      */
     public function __call($name, $arguments)
     {
-        if (method_exists($this->_transport, $name))
-        {
-            return $this->_translate->translate(call_user_func_array(array($this->_transport, $name), $arguments));
-        }
-        else
-        {
+        if (method_exists($this->_transport, $name)) {
+            return $this->_translate->translate(
+                call_user_func_array(
+                    array($this->_transport, $name), 
+                    $arguments
+                )
+            );
+        } else {
             throw new TransportException(TransportException::ERR_METHOD_NOT_FOUND);
         }
     }

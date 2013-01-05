@@ -1,4 +1,19 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Component;
 
 use Clickatell\Component\Transport\TransportInterface as TransportInterface;
@@ -8,8 +23,11 @@ use Clickatell\Component\Validate as Validate;
  * This is the Request object. It is a skeleton class that serves
  * as a container for parameters.
  *
- * @package Clickatell\Component
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class Request
 {
@@ -23,9 +41,10 @@ class Request
      * Requests objects are invoked with the username/password/apiId
      * of the Request. These params are always in use.
      *
-     * @param string $username
-     * @param string $password
-     * @param int $apiId
+     * @param string $username API Username
+     * @param string $password API Password
+     * @param int    $apiId    API ID (Sub-product ID)
+     *
      * @return boolean
      */
     public function __construct($username, $password, $apiId)
@@ -38,8 +57,9 @@ class Request
     /**
      * Some magic to set parameters into the Request object.
      *
-     * @param string $name
-     * @param string $value
+     * @param string $name  Variable name
+     * @param string $value Variable value
+     *
      * @return boolean
      */
     public function __set($name, $value)
@@ -75,7 +95,7 @@ class Request
      */
     public function getParams()
     {
-        #-> Validate parameters and make sure we are still good to go
+        // Validate parameters and make sure we are still good to go
         Validate::validateParameters($this->_params);
 
         return $this->_params;

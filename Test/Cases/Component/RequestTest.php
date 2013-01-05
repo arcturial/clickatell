@@ -1,7 +1,22 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Test\Cases\Component;
 
-#-> Add's an autoloader to load test dependencies
+// Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../../autoload.php";
 
 use Clickatell\Component\Request as Request;
@@ -11,8 +26,11 @@ use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
  * Test Suite for testing the Request object to ensure
  * it can store parameters as expected.
  *
- * @package Clickatell\Test\Cases\Component
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class RequestTest extends PHPUnit_Framework_TestCase
 {

@@ -1,7 +1,22 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component\Transport
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell\Test\Cases\Component\Transport;
 
-#-> Add's an autoloader to load test dependencies
+// Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../../../autoload.php";
 
 use Clickatell\Component\Transport\TransportXml as TransportXml;
@@ -13,8 +28,11 @@ use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
  * Test Suite for testing the TransportXml class. Ensures
  * that it wraps the XML packets the way we expect.
  *
- * @package Clickatell\Test\Cases\Component\Transport
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell\Test\Cases\Component\Transport
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class TransportXmlTest extends PHPUnit_Framework_TestCase
 {
@@ -22,8 +40,9 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
      * Utility function for wrapping XML packets for testing.
      * They are wrapped the way Clickatell expects them.
      *
-     * @param string $action
-     * @param array $param
+     * @param string $action XML action against Clickatell API
+     * @param array  $param  The parameters to pass to the API
+     *
      * @return string
      */
     private function _buildXmlPacket($action, array $param)
@@ -31,8 +50,7 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $result = "<clickAPI>";
         $result .= "<".$action.">";
 
-        foreach ($param as $key => $val)
-        {
+        foreach ($param as $key => $val) {
             $result .= "<".$key.">".$val."</".$key.">";
         }
 
@@ -46,8 +64,9 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
      * Utility function for wrapping XML response packets for testing.
      * They are wrapped the way Clickatell responds from their API.
      *
-     * @param string $action
-     * @param array $param
+     * @param string $action Action returned from the API
+     * @param array  $param  Parameters returned from the API
+     *
      * @return string
      */
     private function _buildXmlReturnPacket($action, array $param)
@@ -55,8 +74,7 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $result = "<clickAPI>";
         $result .= "<".$action."Resp>";
 
-        foreach ($param as $key => $val)
-        {
+        foreach ($param as $key => $val) {
             $result .= "<".$key.">".$val."</".$key.">";
         }
 
@@ -76,13 +94,20 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
     {
         $apiMsgId = "1234567890";
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $transport = new TransportXml($transfer, $request);
-        $result = $transport->extract("<clickAPI><sendMsgResp><apiMsgId>" . $apiMsgId . "</apiMsgId></sendMsgResp></clickAPI>");
+        $result = $transport->extract(
+            "<clickAPI><sendMsgResp><apiMsgId>" 
+            . $apiMsgId
+            . "</apiMsgId></sendMsgResp></clickAPI>"
+        );
 
         $this->assertSame(array("apiMsgId" => $apiMsgId), $result);  
     }
@@ -95,10 +120,13 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
      */
     public function testBuildPost()
     {
-    	$transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $packet = array(
             "action" => "actionname",
@@ -106,13 +134,13 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         );
 
         $request->expects($this->any())
-        		->method('getParams')
-                ->will($this->returnValue($packet));
+            ->method('getParams')
+            ->will($this->returnValue($packet));
 
         $transport = new TransportXml($transfer, $request);
         $result = $transport->buildPost($request);
 
-        #-> Get xml
+        // Get xml
         preg_match("/data=(.*)/", $result, $match);
 
         $xml = simplexml_load_string(urldecode($match[1]));
@@ -135,18 +163,38 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $apiMsgId = "1234567890";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("action" => $action, "to" => $to, "text" => $message)));
+            ->method('getParams')
+            ->will(
+                $this->returnValue(
+                    array("action" => $action, "to" => $to, "text" => $message)
+                )
+            );
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportXml::XML_ENDPOINT), $this->_buildXmlPacket($action, array("to" => $to, "text" => $message)))
-                 ->will($this->returnValue($this->_buildXmlReturnPacket($action, array("apiMsgId" => $apiMsgId))));
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportXml::XML_ENDPOINT), 
+                $this->_buildXmlPacket(
+                    $action, 
+                    array("to" => $to, "text" => $message)
+                )
+            )
+            ->will(
+                $this->returnValue(
+                    $this->_buildXmlReturnPacket(
+                        $action, 
+                        array("apiMsgId" => $apiMsgId)
+                    )
+                )
+            );
 
         $transport = new TransportXml($transfer, $request);
         $result = $transport->sendMessage($to, $message);
@@ -166,25 +214,45 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $balance = "5";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("action" => $action)));
+            ->method('getParams')
+            ->will($this->returnValue(array("action" => $action)));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportXml::XML_ENDPOINT), $this->_buildXmlPacket($action, array()))
-                 ->will($this->returnValue($this->_buildXmlReturnPacket($action, array("ok" => $balance))));
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportXml::XML_ENDPOINT), 
+                $this->_buildXmlPacket($action, array())
+            )
+            ->will(
+                $this->returnValue(
+                    $this->_buildXmlReturnPacket(
+                        $action, 
+                        array("ok" => $balance)
+                    )
+                )
+            );
 
 
         $transport = new TransportXml($transfer, $request);
         $result = $transport->getBalance();
 
-        $this->assertSame($result['result']['status'], Transport::RESULT_SUCCESS);  
-        $this->assertSame($result['result']['response']['balance'], (float) $balance);    
+        $this->assertSame(
+            $result['result']['status'], 
+            Transport::RESULT_SUCCESS
+        );  
+
+        $this->assertSame(
+            $result['result']['response']['balance'], 
+            (float) $balance
+        );    
     }
 
     /**
@@ -200,18 +268,38 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $apiMsgId = "1234567890";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("action" => $action, "apiMsgId" => $apiMsgId)));
+            ->method('getParams')
+            ->will(
+                $this->returnValue(
+                    array("action" => $action, "apiMsgId" => $apiMsgId)
+                )
+            );
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportXml::XML_ENDPOINT), $this->_buildXmlPacket($action, array("apiMsgId" => $apiMsgId)))
-                 ->will($this->returnValue($this->_buildXmlReturnPacket($action, array("apiMsgId" => $apiMsgId, "status" => $status))));
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportXml::XML_ENDPOINT),
+                $this->_buildXmlPacket(
+                    $action, 
+                    array("apiMsgId" => $apiMsgId)
+                )
+            )
+            ->will(
+                $this->returnValue(
+                    $this->_buildXmlReturnPacket(
+                        $action, 
+                        array("apiMsgId" => $apiMsgId, "status" => $status)
+                    )
+                )
+            );
 
 
         $transport = new TransportXml($transfer, $request);
@@ -236,18 +324,35 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $charge = 1;
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("action" => $action, "msisdn" => $msisdn)));
+            ->method('getParams')
+            ->will(
+                $this->returnValue(
+                    array("action" => $action, "msisdn" => $msisdn)
+                )
+            );
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportXml::XML_ENDPOINT), $this->_buildXmlPacket($action, array("msisdn" => $msisdn)))
-                 ->will($this->returnValue($this->_buildXmlReturnPacket($action, array("ok" => $message, "charge" => $charge))));
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportXml::XML_ENDPOINT), 
+                $this->_buildXmlPacket($action, array("msisdn" => $msisdn))
+            )
+            ->will(
+                $this->returnValue(
+                    $this->_buildXmlReturnPacket(
+                        $action, 
+                        array("ok" => $message, "charge" => $charge)
+                    )
+                )
+            );
 
 
         $transport = new TransportXml($transfer, $request);
@@ -272,18 +377,42 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $apiMsgId = "1234567890";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("action" => $action, "apiMsgId" => $apiMsgId)));
+            ->method('getParams')
+            ->will(
+                $this->returnValue(
+                    array("action" => $action, "apiMsgId" => $apiMsgId)
+                )
+            );
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportXml::XML_ENDPOINT), $this->_buildXmlPacket($action, array("apiMsgId" => $apiMsgId)))
-                 ->will($this->returnValue($this->_buildXmlReturnPacket($action, array("apiMsgId" => $apiMsgId, "status" => $status, "charge" => $charge))));
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportXml::XML_ENDPOINT), 
+                $this->_buildXmlPacket(
+                    $action, 
+                    array("apiMsgId" => $apiMsgId)
+                )
+            )
+            ->will(
+                $this->returnValue(
+                    $this->_buildXmlReturnPacket(
+                        $action, 
+                        array(
+                            "apiMsgId" => $apiMsgId, 
+                            "status" => $status, 
+                            "charge" => $charge
+                        )
+                    )
+                )
+            );
 
 
         $transport = new TransportXml($transfer, $request);
@@ -307,19 +436,31 @@ class TransportXmlTest extends PHPUnit_Framework_TestCase
         $error = "Error Message";
 
         $request = $this->getMockBuilder("Clickatell\Component\Request")
-                        ->disableOriginalConstructor()
-                        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $request->expects($this->any())
-                ->method('getParams')
-                ->will($this->returnValue(array("action" => $action)));
+            ->method('getParams')
+            ->will($this->returnValue(array("action" => $action)));
 
-        $transfer = $this->getMock("Clickatell\Component\Transfer\TransferInterface");
+        $transfer = $this->getMock(
+            "Clickatell\Component\Transfer\TransferInterface"
+        );
+
         $transfer->expects($this->any())
-                 ->method("execute")
-                 ->with($this->equalTo(TransportXml::XML_ENDPOINT), $this->_buildXmlPacket($action, array()))
-                 ->will($this->returnValue($this->_buildXmlReturnPacket($action, array("fault" => $error))));
-
+            ->method("execute")
+            ->with(
+                $this->equalTo(TransportXml::XML_ENDPOINT), 
+                $this->_buildXmlPacket($action, array())
+            )
+            ->will(
+                $this->returnValue(
+                    $this->_buildXmlReturnPacket(
+                        $action, 
+                        array("fault" => $error)
+                    )
+                )
+            );
 
         $transport = new TransportXml($transfer, $request);
         $result = $transport->sendMessage(12345, "");

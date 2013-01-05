@@ -1,4 +1,19 @@
 <?php
+/**
+ * The Clickatell SMS Library provides a standardised way of talking to and
+ * receiving replies from the Clickatell API's. It makes it
+ * easier to write your applications and grants the ability to
+ * quickly switch the type of API you want to use HTTP/XML without
+ * changing any code.
+ *
+ * PHP Version 5.3
+ *
+ * @category Clickatell
+ * @package  Clickatell
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
+ */
 namespace Clickatell;
 
 use Clickatell\Component\Request as Request;
@@ -14,17 +29,22 @@ use Clickatell\Exception\TransportException as TransportException;
  * objects that other classes depends on. This class can be modifed to change the
  * default objects used.
  *
- * @package Clickatell
- * @author Chris Brand
+ * @category Clickatell
+ * @package  Clickatell
+ * @author   Chris Brand <chris@cainsvault.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://github.com/arcturial
  */
 class ClickatellContainer
 {
     /**
-     * Creates an action handler. The action handler groups requests to the Transport and Translate
-     * interfaces to generate the correct response.
+     * Creates an action handler. The action handler groups requests 
+     * to the Transport and Translate interfaces to generate 
+     * the correct response.
      *
-     * @param Clickatell\Component\Transport\TransportInterface $transport
-     * @param Clickatell\Component\Translate\TranslateInterface $translate
+     * @param Clickatell\Component\Transport\TransportInterface $transport Transport to use
+     * @param Clickatell\Component\Translate\TranslateInterface $translate Translater to use
+     *
      * @return Clickatell\Component\Action
      */
     public static function createAction(TransportInterface $transport, TranslateInterface $translate)
@@ -35,11 +55,13 @@ class ClickatellContainer
     }
 
     /**
-     * Creates a request object with the uesrname\password\apiID as default parameters.
+     * Creates a request object with the uesrname\password\apiID as 
+     * default parameters.
      *
-     * @param string $username
-     * @param string $password
-     * @param int $apiId
+     * @param string $username API username
+     * @param string $password API password
+     * @param int    $apiId    API ID (Sub-product ID)
+     *
      * @return Clickatell\Component\Request
      */
     public static function createRequest($username, $password, $apiId)
@@ -53,29 +75,30 @@ class ClickatellContainer
      * Creates a Transport request. The Transport expects a Request object
      * in order to pull information on how to complete the call.
      *
-     * @param string $transport
-     * @param Clickatell\Component\Request $request
-     * @return Clickatell\Component\Transport\TransportInterface
+     * @param string                       $transport Transport namespace
+     * @param Clickatell\Component\Request $request   Request object
+     *
      * @throws TransportException
+     * @return Clickatell\Component\Transport\TransportInterface
      */
     public static function createTransport($transport, Request $request)
     {
-        if (class_exists($transport))
-        {
+        if (class_exists($transport)) {
+
             $object = new $transport(static::createTransfer(), $request);
 
-            if ($object instanceof TransportInterface)
-            {
+            if ($object instanceof TransportInterface) {
                 return $object;
+            } else {
+                throw new TransportException(
+                    TransportException::ERR_UNSUPPORTED_TRANSPORT
+                );
             }
-            else
-            {
-                throw new TransportException(TransportException::ERR_UNSUPPORTED_TRANSPORT);
-            }
-        }
-        else
-        {
-            throw new TransportException(TransportException::ERR_TRANSPORT_NOT_FOUND);
+
+        } else {
+            throw new TransportException(
+                TransportException::ERR_TRANSPORT_NOT_FOUND
+            );
         }
     }
 
