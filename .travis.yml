@@ -5,4 +5,4 @@ php:
   - "5.3"
 
 script:
-  - phpunit -c ./Test/testsuite.xml
+  - phpunit -c /Test/testsuite.xml
