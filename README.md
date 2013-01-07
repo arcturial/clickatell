@@ -38,6 +38,7 @@ You can specify a different output using the Clickatell constructor or using the
 OR
 
 `$clickatell = new Clickatell($username, $password, $apiID);`
+
 `$clickatell->setTransport(new Clickatell\Component\Transport\TransportXml);`
 
 NOTE: The library uses name spaces, and the Clickatell messenger is located at `Clickatell\Clickatell`
