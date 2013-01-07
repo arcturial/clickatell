@@ -79,7 +79,7 @@ class Clickatell
         // Register autoloader
         $autoload = function ($class) {
 
-            $class = preg_replace("/Clickatell\\\/", "", $class);
+            $class = str_replace("\\", "/", preg_replace("/Clickatell\\\/", "", $class));
             
             if (is_file(__DIR__ . "/" . $class . ".php")) {
                 include_once __DIR__ . "/" . $class . ".php";   
