@@ -29,6 +29,7 @@ The Clickatell library allows you specify several ways to connect to Clickatell.
 The default transport is HTTP.
 
 `$clickatell = new Clickatell($username, $password, $apiID);`
+
 `$clickatell->sendMessage(1111111111, "My Message");`
 
 You can specify a different output using the Clickatell constructor or using the setTransport() method.
