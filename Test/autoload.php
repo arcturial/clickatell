@@ -22,10 +22,10 @@
 $autoload = function ($class) {
 
     // Load custom Clickatell classes
-    $include = __DIR__ . "/../../" . $class . ".php";
-    
-    if (is_file($include)) {
-        include_once $include;  
+    $class = preg_replace("/Clickatell\\\/", "", $class);
+            
+    if (is_file(__DIR__ . "/../" . $class . ".php")) {
+        include_once __DIR__ . "/../" . $class . ".php";
     }   
 };
 
