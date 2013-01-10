@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 /**
  * The Clickatell SMS Library provides a standardised way of talking to and
@@ -77,7 +78,6 @@ class TransferCurl implements TransferInterface
      */
     public function execute($url, $param)
     {
-        //echo $url . "?" . $param . "\n";
         curl_setopt($this->_ch, CURLOPT_URL, $url);
 
         if (!empty($param)) {
@@ -85,7 +85,6 @@ class TransferCurl implements TransferInterface
         }
 
         $result = curl_exec($this->_ch);
-        //echo $result . "\n";
 
         if (!curl_errno($this->_ch)) {
             return $result;

@@ -3,6 +3,8 @@ Clickatell SMS Messenger Library
 
 Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
 
+Development: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=dev)](http://travis-ci.org/arcturial/clickatell)
+
 This library allows easy access to connecting the Clickatell's Messenging API's.
 
 ### Table of Contents
@@ -27,6 +29,7 @@ The Clickatell library allows you specify several ways to connect to Clickatell.
 The default transport is HTTP.
 
 `$clickatell = new Clickatell($username, $password, $apiID);`
+
 `$clickatell->sendMessage(1111111111, "My Message");`
 
 You can specify a different output using the Clickatell constructor or using the setTransport() method.
@@ -36,6 +39,7 @@ You can specify a different output using the Clickatell constructor or using the
 OR
 
 `$clickatell = new Clickatell($username, $password, $apiID);`
+
 `$clickatell->setTransport(new Clickatell\Component\Transport\TransportXml);`
 
 NOTE: The library uses name spaces, and the Clickatell messenger is located at `Clickatell\Clickatell`
