@@ -41,4 +41,16 @@ class ValidateException extends Exception
      * @var string
      */
     const ERR_INVALID_NUM = "Integer is invalid. Please ensure you passed a real number."; 
+
+    /**
+     * Triggers when an IP address is invalid
+     * @var string
+     */
+    const ERR_INVALID_IP = "IP address is invalid. Please ensure you pass a real IP address."; 
+
+    /**
+     * Triggers when we're missing fields indicated as required
+     * @var string
+     */
+    const ERR_MISSING_REQUIRED_FIELDS = "Missing required field(s).";
 }

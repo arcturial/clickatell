@@ -47,11 +47,20 @@ class Request
      *
      * @return boolean
      */
-    public function __construct($username, $password, $apiId)
+    public function __construct($username = '', $password = '', $apiId = '')
     {
-        $this->_params['user']      = $username;
-        $this->_params['password']  = $password;
-        $this->_params['api_id']    = $apiId;
+        if ($username)
+        {
+            $this->_params['user']      = $username;
+        }
+        if ($password)
+        {
+            $this->_params['password']  = $password;
+        }
+        if ($apiId)
+        {
+            $this->_params['api_id']    = $apiId;
+        }
     }
 
     /**
@@ -75,14 +84,16 @@ class Request
      */
     public function reset()
     {
-        $tmp = array(
-            'user'      => $this->_params['user'],
-            'password'  => $this->_params['password'],
-            'api_id'    => $this->_params['api_id']
-        );
+        $tmp = array();
+        foreach (array('user', 'password', 'api_id') as $field)
+        {
+            if (!empty($this->_params[$field]))
+            {
+                $tmp[$field] = $this->_params[$field];
+            }
+        }
 
         $this->_params = array();
-
         $this->_params = array_merge($tmp, $this->_params);
 
         return $this;

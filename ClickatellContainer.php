@@ -64,7 +64,7 @@ class ClickatellContainer
      *
      * @return Clickatell\Component\Request
      */
-    public static function createRequest($username, $password, $apiId)
+    public static function createRequest($username = '', $password = '', $apiId = '')
     {
         $request = new Request($username, $password, $apiId);
 
@@ -121,6 +121,6 @@ class ClickatellContainer
      */
     public static function createTranslate()
     {
-        return new TranslateJson;
+        return new TranslateJson();
     }
 }

@@ -93,6 +93,42 @@ class Validate
     }
 
     /**
+     * Ensure that an IP address is valid
+     *
+     * @param   string  $ip_address
+     *
+     * @return  boolean
+     * @throws  Clickatell\Exception\ValidateException
+     */
+    private static function _validateIpAddress($ip_address)
+    {
+        if (!$ip_address || long2ip(ip2long($ip_address)) != $ip_address)
+        {
+            throw new ValidateException(ValidateException::ERR_INVALID_IP);
+        }
+        return true;
+    }
+
+    public static function validateRequired(array $params, array $required)
+    {
+        $ok = true;
+        $missing_fields = array();
+        foreach ($required as $required_field)
+        {
+            if (empty($params[$required_field]))
+            {
+                $missing_fields[] = $required_field;
+                $ok = false;
+            }
+        }
+
+        if (!$ok)
+        {
+            throw new ValidateException(ValidateException::ERR_MISSING_REQUIRED_FIELDS .': ' . implode(', ', $missing_fields));
+        }
+    }
+
+    /**
      * Validate the list of parameters.
      *
      * @param array $params Parameters to validate if possible
@@ -149,13 +185,26 @@ class Validate
                         break;
 
                     case 'from':
-                        
+                    case 'mobile_number':
                         // Ensure that the from address is a valid number
-
                         if (!empty($val)) {
                             self::_validateTelephone($val);
                         }
 
+                        break;
+
+                    case 'country_id':
+                        // Make sure the country_id is an integer
+                        if (!empty($val)) {
+                            self::_validateInt($val);
+                        }
+                        break;
+
+                    case 'client_ip_address':
+                        // Ensure a valid IP address
+                        if (!empty($val)) {
+                            self::_validateIpAddress($val);
+                        }
                         break;
                 }
 

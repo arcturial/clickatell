@@ -24,6 +24,11 @@
         <testsuite name="ClickatellComponentTransportSuite">
             <file>Cases/Component/Transport/TransportHttpTest.php</file>
             <file>Cases/Component/Transport/TransportXmlTest.php</file>
+            <file>Cases/Component/Transport/TransportConnectTest.php</file>
+        </testsuite>
+
+        <testsuite name="ClickatellComponentTransportPacketSuite">
+            <file>Cases/Component/Transport/Packet/PacketXml.php</file>
         </testsuite>
     </testsuites>
 </phpunit>
