@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 /**
  * The Clickatell SMS Library provides a standardised way of talking to and
