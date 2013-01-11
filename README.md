@@ -1,9 +1,7 @@
 Clickatell SMS Messenger Library
 ================================
 
-Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
-
-Development: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=dev)](http://travis-ci.org/arcturial/clickatell)
+Master: [![Build Status](https://secure.travis-ci.org/xsist10/clickatell.png?branch=master)](http://travis-ci.org/xsist10/clickatell)
 
 This library allows easy access to connecting the Clickatell's Messenging API's.
 
