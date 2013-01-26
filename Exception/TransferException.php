@@ -34,5 +34,23 @@ class TransferException extends Exception
      * The Transfer handler encountered a problem.
      * @var string
      */
-    const ERR_HANLDER_EXCEPTION   = "Handler Encountered a Problem";   
+    const ERR_HANLDER_EXCEPTION = "Handler Encountered a Problem.";  
+
+    /**
+     * CURL is disabled on this configuration
+     * @var string
+     */
+    const ERR_CURL_DISABLED = "CURL extension is unavailable for this installation of PHP.";
+
+    /**
+     * SoapClient is disabled on this configuration
+     * @var string
+     */
+    const ERR_SOAP_DISABLED = "SoapClient extension is unavailable for this installation of PHP.";
+
+    /**
+     * Unable to deliver mail request.
+     * @var string
+     */
+    const ERR_MAIL_UNDELIVERED = "Unable to deliver e-mail request.";
 }

@@ -19,20 +19,11 @@ namespace Clickatell\Test\Cases\Component;
 // Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../../autoload.php";
 
-<<<<<<< HEAD:Test/Cases/Component/TransportTest.php
-use Clickatell\Component\Action as Action;
-use Clickatell\Component\Transport as Transport;
-use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
-
-/**
- * Test Suite for testing the transport abstract. 
-=======
 use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
 use Clickatell\Component\Utility as Utility;
 
 /**
  * Test Suite for testing the Utility class.
->>>>>>> dev:Test/Cases/Component/UtilityTest.php
  *
  * @category Clickatell
  * @package  Clickatell\Test\Cases\Component
@@ -40,40 +31,6 @@ use Clickatell\Component\Utility as Utility;
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/arcturial
  */
-<<<<<<< HEAD:Test/Cases/Component/TransportTest.php
-class TransportTest extends PHPUnit_Framework_TestCase
-{
-    /**
-     * Ensures that the transport wrapper wraps the response as
-     * expected.
-     *
-     * @return boolean
-     */
-    public function testWrapResponse()
-    {
-        $status = Transport::RESULT_SUCCESS;
-        $response = "My Response String";
-
-        $expectedResult = array(
-            "result" => array(
-                "status" => $status, 
-                "response" => $response
-            )
-        );
-
-        $transport = $this->getMockBuilder('Clickatell\Component\Transport')
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $transport->expects($this->any())
-            ->method('wrapResponse')
-            ->will($this->returnValue($expectedResult));
-
-        $this->assertSame(
-            $expectedResult, 
-            $transport->wrapResponse($status, $response)
-        );
-=======
 class UtilityTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -97,6 +54,5 @@ class UtilityTest extends PHPUnit_Framework_TestCase
         $result = Utility::arrayToString($arr);
 
         $this->assertSame($expectedResult, $result);
->>>>>>> dev:Test/Cases/Component/UtilityTest.php
     }
 }

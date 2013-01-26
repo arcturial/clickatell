@@ -21,6 +21,7 @@ require_once __DIR__ . "/../autoload.php";
 
 use Clickatell\Clickatell as Clickatell;
 use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
+use \ReflectionClass as ReflectionClass;
 
 /**
  * Test Suite for testing the main messenger functionality. The messenger
@@ -36,18 +37,37 @@ use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
 class ClickatellTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Test that the messaging object was initiated with the HTTP
-     * transport protocol as default.
+     * Ensure the autoloading functionality is working.
      *
      * @return boolean
      */
-    public function testRequestCreated()
+    public function testAutoloader()
     {
-        $clickatell = new Clickatell("username", "password", 12345);
+        $clickatell = new Clickatell(
+            "username", 
+            "password", 
+            12345, 
+            Clickatell::HTTP_API
+        );
 
-        $this->assertInstanceOf(
-            "Clickatell\Component\Request", 
-            $clickatell->request()
+        // Make the private method accesible
+        $reflection = new ReflectionClass($clickatell);
+        $method = $reflection->getMethod('_autoLoad');
+        $method->setAccessible(true);
+
+        // Load a random clickatell library component
+        $this->assertTrue(
+            $method->invokeArgs(
+                $clickatell, 
+                array('Clickatell\Exception\Diagnostic')
+            )
+        );
+
+        $this->assertFalse(
+            $method->invokeArgs(
+                $clickatell, 
+                array('Clickatell\Exception\Unknown')
+            )
         );
     }
 
@@ -58,51 +78,96 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
      *
      * @return boolean
      */
-    public function testInitialTransport()
+    public function testTransportCreation()
     {
-        $clickatell = new Clickatell("username", "password", 12345);
+        $clickatell = new Clickatell(
+            "username", 
+            "password", 
+            12345, 
+            Clickatell::HTTP_API
+        );
 
         // Set the transport and ensure we get a chained object back.
         $this->assertInstanceOf(
-            "Clickatell\Component\Transport\TransportHttp", 
+            "Clickatell\Api\Http", 
             $clickatell->getTransport()
         );
     }
 
     /**
      * Ensure that a call to the messenger follows the correct path through
-     * the Transport and Transfer interfaces and returns the expected
+     * the Transport and Translate interfaces and returns the expected
      * result.
      *
      * @return boolean
      */
     public function testTransportDispatch()
     {
-        $result = array("dispatch done");
+        // Set expected result
+        $result = array("result" => "call done");
 
-        $clickatell = new Clickatell("username", "password", 12345);
-
-        $transport = $this->getMock(
-            "Clickatell\Component\Transport\TransportInterface"
+        $clickatell = new Clickatell(
+            "username", 
+            "password", 
+            12345, 
+            Clickatell::HTTP_API
         );
+
+        // Mock the API transport with an interface
+        $transport = $this->getMockBuilder("Clickatell\Api\Http")
+            ->disableOriginalConstructor()
+            ->setMethods(array("call"))
+            ->getMock();
 
         $transport->expects($this->any())
-            ->method('sendMessage')
+            ->method('call')
             ->will($this->returnValue($result));
 
+        // Set the mocked transport
         $clickatell->setTransport($transport);
 
-        $translate = $this->getMock(
-            "Clickatell\Component\Translate\TranslateInterface"
+
+        $this->assertSame(
+            $result, 
+            $clickatell->sendMessage(array(12345), "Test Message")
+        );
+    }
+
+
+    /**
+     * Ensure that the _methodExists function correctly scans an
+     * interface for the applicable method.
+     *
+     * @return boolean
+     */
+    public function testMethodExists()
+    {
+        $clickatell = new Clickatell(
+            "username", 
+            "password", 
+            12345, 
+            Clickatell::HTTP_API
         );
 
-        $translate->expects($this->any())
-            ->method('translate')
-            ->with($this->equalTo($result))
-            ->will($this->returnValue($result));
+        // Make the private method accesible
+        $reflection = new ReflectionClass($clickatell);
+        $method = $reflection->getMethod('_methodExists');
+        $method->setAccessible(true);
 
-        $clickatell->setTranslate($translate);
+        // Test existing method
+        $this->assertTrue(
+            $method->invokeArgs(
+                $clickatell, 
+                array(array('Clickatell\Api\Definition\ApiInterface'), 'sendMessage')
+            )
+        );
 
-        $this->assertSame($result, $clickatell->sendMessage(12345, "Test Message"));
+        // Test unknown method
+        $this->assertFalse(
+            $method->invokeArgs(
+                $clickatell, 
+                array(array('Clickatell\Api\Definition\ApiInterface'), 'sendUnknown')
+            )
+        );
     }
 }

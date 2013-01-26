@@ -17,7 +17,6 @@
 namespace Clickatell\Component;
 
 use Clickatell\Exception\ValidateException as ValidateException;
-use Clickatell\Component\Request as Request;
 
 /**
  * This is the Validation class. Some API fields might require validation
@@ -33,136 +32,201 @@ use Clickatell\Component\Request as Request;
 class Validate
 {
     /**
-     * Validate a number to check if it will work
-     * with the Clickatell API.
+     * API call meta validation information
+     * 
+     * Available definitions:
+     * - telephone
+     * - int
+     * - require
      *
-     * @param int $number Number to validate
-     *
-     * @return boolean
+     * @var array
      */
-    private static function _validateLeadingZero($number)
-    {
-        if (substr($number, 0, 1) == "0") {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    private static $_meta = array(
+        'sendMessage' => array(
+            'to' => 'required|telephone',
+            'from' => 'telephone'
+        ),
+        'getBalance' => array(
+        ),
+        'queryMessage' => array(
+            'apiMsgId' => 'required'
+        ),
+        'routeCoverage' => array(
+            'msisdn' => 'telephone'
+        ),
+        'getMessageCharge' => array(
+            'apiMsgId' => 'required'
+        )
+    );
 
     /**
-     * Validate the input to be an int. Useful for API Id's and
-     * so forth.
+     * Process a value to ensure it's an int.
      *
-     * @param int $number Number to validate
-     *
-     * @return boolean
-     */
-    private static function _validateInt($number)
-    {
-        if (is_numeric($number)) {
-            return true;
-        } else {
-            return false;
-        }       
-    }    
-
-    /**
-     * Run a range of validation checks against
-     * a telephone number.
-     *
-     * @param int $number Number to validate
+     * @param mixed $value Value to process
      *
      * @return boolean
-     * @throws Clickatell\Exception\ValidateException
+     * @throws Clickatell\Exception\ValidationException
      */
-    private static function _validateTelephone($number)
+    private static function _validateInt($value)
     {
-        if (self::_validateLeadingZero($number)) {
-            trigger_error(
-                __CLASS__ . ": " . ValidateException::ERR_LEADING_ZERO 
-                . " (" . $number .")", 
-                E_USER_NOTICE
+        if (!is_numeric($value)) {
+            throw new ValidateException(
+                ValidateException::ERR_INVALID_INT . " (" . $value . ")"
             );
-        }
-
-        if (!self::_validateInt(trim($number))) {
-            throw new ValidateException(ValidateException::ERR_INVALID_NUM);
         }
 
         return true;
     }
 
     /**
-     * Validate the list of parameters.
+     * Process a value to check if the value
+     * actually exist and is not just blank.
      *
-     * @param array $params Parameters to validate if possible
+     * @param mixed $value Value to process
      *
      * @return boolean
-     * @throws ValidateException
+     * @throws Clickatell\Exception\ValidationException
      */
-    public static function validateParameters(array $params)
+    private static function _validateRequired($value  = '')
     {
-        foreach ($params as $key => $val) {
+        if (empty($value) || $value == '' || $value == null) {
+            throw new ValidateException(
+                ValidateException::ERR_FIELD_REQUIRED
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Process a value to check if it's a valid mobile
+     * number.
+     *
+     * @param mixed $value Value to process
+     *
+     * @return boolean
+     * @throws Clickatell\Exception\ValidationException
+     */
+    private static function _validateTelephone($value)
+    {
+        $first = substr($value, 0, 1);
+
+        if ($first == '0') {
+            // Raise a warning
+            trigger_error(
+                "ClickatellValidation: '" . $value . "'"
+                . " replacing leading zero's is advised.",
+                E_USER_WARNING
+            );
+        }
+
+        // Catch any errors and forward them on
+        try {
             
-            try {
+            static::_validateInt($value);
 
-                switch($key) {
-                    case 'api_id':
+        } catch (ValidateException $exception) {
 
-                        // Make sure the api_id is an integer
+            throw new ValidateException(
+                ValidateException::ERR_INVALID_TELEPHONE . " (" . $value . ")"
+            );    
+        }
 
-                        if (!empty($val)) {
-                            self::_validateInt($val);
+        return true;
+    }
+
+    /**
+     * Traverse a value and assert a condition on
+     * all it's entries.
+     *
+     * @param mixed    $value    Value to check
+     * @param function $function Function to validate with
+     *
+     * @return boolean
+     */
+    private static function _traverse($value, $function)
+    {
+        // If it's an array, loop it
+        if (is_array($value)) {
+
+            foreach ($value as $val) {
+                static::_traverse($val, $function);
+            }
+
+        } else {
+
+            return static::$function($value);
+        }
+    }   
+
+    /**
+     * Runs all validation checks against a certain value.
+     * Any exceptions found are forwarded along.
+     *
+     * @param mixed $value      Value to check
+     * @param array $validation All validation checks to run
+     *
+     * @return boolean
+     */
+    private static function _runChecks($value, $validation)
+    {
+        // Loop through the defined asserts
+        foreach ($validation as $assert) {
+
+            $method = "_validate" . ucfirst($assert);
+            
+            // Catch any failures and forward them
+            // along with the failing key.
+            if (method_exists('Clickatell\Component\Validate', $method)) {
+                static::_traverse($value, $method);
+            }
+        }   
+
+        return true;
+    }
+
+
+
+    /**
+     * Process a packet based on the method requested.
+     *
+     * @param string $method Method to process
+     * @param array  $packet Packet to validate
+     *
+     * @return boolean
+     */
+    public static function processValidation($method, $packet)
+    {
+        // Valid method?
+        if (isset(static::$_meta[$method])) {
+
+            $meta = static::$_meta[$method];
+
+            // Only expects one dimension
+            foreach ($packet as $key => $val) {
+
+                // Check if validation is registered
+                if (isset($meta[$key])) {
+
+                    $validations = explode("|", $meta[$key]);
+
+                    if (in_array('required', $validations) || $val != '') {
+
+                        // Catch any failures and forward them
+                        // along with the failing key.
+                        try {
+
+                            static::_runChecks($val, $validations);
+
+                        } catch (ValidateException $exception) {
+
+                            throw new ValidateException(
+                                "Parameter '" . $key . "' - " 
+                                . $exception->getMessage()
+                            );
                         }
-
-                        break;
-
-                    case 'to':
-
-                        // Make sure the recipient list contains valid numbers
-
-                        if (strpos($val, ",") !== false) {
-
-                            // Recipient list has multiple entries
-                            $split = explode(",", $val);
-                            
-                            foreach ($split as $offset => $number) {
-
-                                try {
-
-                                    self::_validateTelephone($number); 
-
-                                } catch (ValidateException $exception) {
-                                    throw new ValidateException(
-                                        $exception->getMessage() 
-                                        . " (number at offset " . $offset . ")"
-                                    );
-                                }
-                            }
-
-                        } else {
-
-                            // Validate single entry
-                            self::_validateTelephone($val);
-                        }
-
-                        break;
-
-                    case 'from':
-                        
-                        // Ensure that the from address is a valid number
-
-                        if (!empty($val)) {
-                            self::_validateTelephone($val);
-                        }
-
-                        break;
+                    }
                 }
-
-            } catch (ValidateException $exception) {
-                throw new ValidateException(
-                    "Parameter '" . $key ."' - " . $exception->getMessage()
-                );
             }
         }
     }

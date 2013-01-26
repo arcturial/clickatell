@@ -9,21 +9,20 @@
  * PHP Version 5.3
  *
  * @category Clickatell
- * @package  Clickatell\Component\Tranlate
+ * @package  Clickatell\Component\Translate
  * @author   Chris Brand <chris@cainsvault.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/arcturial
  */
 namespace Clickatell\Component\Translate;
 
-use Clickatell\Component\Request as Request;
 
 /**
  * This is the Translate interface. The interface ensures
  * that all new Translaters include these functions.
  *
  * @category Clickatell
- * @package  Clickatell\Component\Tranlate
+ * @package  Clickatell\Component\Translate
  * @author   Chris Brand <chris@cainsvault.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/arcturial

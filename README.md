@@ -47,9 +47,24 @@ NOTE: The library uses name spaces, and the Clickatell messenger is located at `
 3. Supported API calls
 ------------------
 
-The library currently supports the HTTP and XML API connections with the following methods available.
+Clickatell has a couple of different API's that each support a subset of functions. We are going to refer to them as
+Messaging and Bulk Messaging API's for this document.
 
-`sendMessage($to, $message, $from = "", $callback = true);`
+### Messaging API's
+
+The following are all messaging API's.
+
+` Clickatell\Component\Transport\TransportHttp `
+
+` Clickatell\Component\Transport\TransportSoap `
+
+` Clickatell\Component\Transport\TransportXml `
+
+` Clickatell\Component\Transport\TransportSmtp `
+
+These Transports all support the following functions
+
+`sendMessage(array $to, string $message, $from = "", $callback = true);`
 
 `getBalance();`
 
@@ -58,3 +73,14 @@ The library currently supports the HTTP and XML API connections with the followi
 `routeCoverage($msisdn);`
 
 `getMessageCharge($apiMsgId);`
+
+### Bulk Messaging API's
+
+The following are bulk messaging API's. The have only a limited number of functions and are more suited for bulk messaging. Since they aren't processed in real time, these Transports do not
+return the same results as the normal messaging API's.
+
+` Clickatell\Component\Transport\TransportSMTP `
+
+These Transports all support the following functions
+
+`sendMessage(array $to, string $message, $from = "", $callback = true);`

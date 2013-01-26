@@ -9,39 +9,11 @@
  * PHP Version 5.3
  *
  * @category Clickatell
-<<<<<<< HEAD:Component/Transport/TransportInterfaceExtract.php
- * @package  Clickatell\Component\Transport
-=======
  * @package  Clickatell\Exception
->>>>>>> dev:Exception/ApiException.php
  * @author   Chris Brand <chris@cainsvault.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/arcturial
  */
-<<<<<<< HEAD:Component/Transport/TransportInterfaceExtract.php
-namespace Clickatell\Component\Transport;
-
-/**
- * The extracting interface just ensures a class is capable of performing
- * a result extraction from the API call return.
- *
- * @category Clickatell
- * @package  Clickatell\Component\Transport
- * @author   Chris Brand <chris@cainsvault.com>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     https://github.com/arcturial
- */
-interface TransportInterfaceExtract
-{
-    /**
-     * Extracts the result from the API into an associative array
-     *
-     * @param mixed $response Response string from API
-     *
-     * @return array
-     */
-    public function extract($response);
-=======
 namespace Clickatell\Exception;
 
 use \Exception as Exception;
@@ -63,5 +35,4 @@ class ApiException extends Exception
      * @var string
      */
     const ERR_METHOD_NOT_FOUND = "This method does not exist as part of this API.";  
->>>>>>> dev:Exception/ApiException.php
 }

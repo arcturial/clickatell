@@ -9,7 +9,7 @@
  * PHP Version 5.3
  *
  * @category Clickatell
- * @package  Clickatell\Component\Tranlate
+ * @package  Clickatell\Component\Translate
  * @author   Chris Brand <chris@cainsvault.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/arcturial
@@ -23,7 +23,7 @@ use Clickatell\Component\Translate\TranslateInterface as TranslateInterface;
  * and translates them into your requested format. In this case...JSON
  *
  * @category Clickatell
- * @package  Clickatell\Component\Tranlate
+ * @package  Clickatell\Component\Translate
  * @author   Chris Brand <chris@cainsvault.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/arcturial
