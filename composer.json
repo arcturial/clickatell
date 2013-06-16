@@ -1,0 +1,21 @@
+{
+    "name": "arcturial/clickatell",
+    "type": "library",
+    "description": "Clickatell SMS Gateway PHP Library",
+    "authors": [
+        {
+            "name": "Chris Brand",
+            "email": "webmaster@cainsvault.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "autoload": {
+        "psr-0": {
+            "Clickatell\\": ""
+        }
+    },
+    "target-dir": "Clickatell/",
+    "minimum-stability": "dev"
+}
