@@ -3,6 +3,7 @@
     "type": "library",
     "description": "Clickatell SMS Gateway PHP Library",
     "homepage": "http://www.cainsvault.com",
+    "license": "GNU General Public License",
     "authors": [
         {
             "name": "Chris Brand",
