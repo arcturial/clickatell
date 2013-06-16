@@ -3,20 +3,27 @@ Clickatell SMS Messenger Library
 
 Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
 
-This library allows easy access to connecting the Clickatell's Messenging API's.
+This library allows easy access to connecting the [Clickatell's](http://www.clickatell.com) different messenging API's.
 
 ### Table of Contents
 * Installation
 * Usage
 * Supported API calls
+* Events
 
 
 1. Installation
 ------------------
 
-Download the library to your application. The library has it's own autoloader so you can get it up and running by including on the main `Clickatell.php` file.
+This library uses [composer](http://www.getcomposer.org) and can be acquired using the following in your composer.json file.
 
-`require_once 'path/to/module/Clickatell.php'`
+``` json
+{
+    "require": {
+        "arcturial/clickatell": "*"
+    }
+}
+```
 
 
 2. Usage
@@ -26,19 +33,23 @@ The Clickatell library allows you specify several ways to connect to Clickatell.
 
 The default transport is HTTP.
 
-`$clickatell = new Clickatell($username, $password, $apiID);`
+``` php
+$clickatell = new Clickatell($username, $password, $apiID);
 
-`$clickatell->sendMessage(1111111111, "My Message");`
+$clickatell->sendMessage(1111111111, "My Message");
+```
 
 You can specify a different output using the Clickatell constructor or using the setTransport() method.
 
-`$clickatell = new Clickatell($username, $password, $apiID, Clickatell::TRANSPORT_XML);`
+``` php
+$clickatell = new Clickatell($username, $password, $apiID, Clickatell::TRANSPORT_XML);
 
-OR
+// OR
 
-`$clickatell = new Clickatell($username, $password, $apiID);`
+$clickatell = new Clickatell($username, $password, $apiID);
 
-`$clickatell->setTransport(new Clickatell\Component\Transport\TransportXml);`
+$clickatell->setTransport(new Clickatell\Component\Transport\TransportXml);
+```
 
 NOTE: The library uses name spaces, and the Clickatell messenger is located at `Clickatell\Clickatell`
 
@@ -52,33 +63,73 @@ Messaging and Bulk Messaging API's for this document.
 
 The following are all messaging API's.
 
-` Clickatell\Component\Transport\TransportHttp `
+``` php
+use Clickatell\Component\Transport\TransportHttp;
 
-` Clickatell\Component\Transport\TransportSoap `
+use Clickatell\Component\Transport\TransportSoap;
 
-` Clickatell\Component\Transport\TransportXml `
+use Clickatell\Component\Transport\TransportXml;
 
-` Clickatell\Component\Transport\TransportSmtp `
+use Clickatell\Component\Transport\TransportSmtp;
+``` 
 
 These Transports all support the following functions
 
-`sendMessage(array $to, string $message, $from = "", $callback = true);`
+``` php
+sendMessage(array $to, string $message, $from = "", $callback = true);
 
-`getBalance();`
+getBalance();
 
-`queryMessage($apiMsgId);`
+queryMessage($apiMsgId);
 
-`routeCoverage($msisdn);`
+routeCoverage($msisdn);
 
-`getMessageCharge($apiMsgId);`
+getMessageCharge($apiMsgId);
+```
 
 ### Bulk Messaging API's
 
 The following are bulk messaging API's. The have only a limited number of functions and are more suited for bulk messaging. Since they aren't processed in real time, these Transports do not
 return the same results as the normal messaging API's.
 
-` Clickatell\Component\Transport\TransportSMTP `
+``` php
+use Clickatell\Component\Transport\TransportSMTP;
+```
 
 These Transports all support the following functions
 
-`sendMessage(array $to, string $message, $from = "", $callback = true);`
+``` php
+sendMessage(array $to, string $message, $from = "", $callback = true);
+```
+
+
+4. Events
+---------------
+
+This library provides a couple of events to extend the ability of the API's. Current support events are `request` and `response`.
+
+Example
+
+``` php
+<?php
+
+use Clickatell\Clickatell;
+
+$clickatell = new Clickatell('[username]', '[password]', [api_id], Clickatell::HTTP_API);
+
+$clickatell->on('request', function($data) {
+	// $data = The parameters passed to the request
+	print_r($data);
+});
+
+$clickatell->on('response', function($data) {
+	// $data = The result of the API call.
+
+	// This hook can be used to register multiple
+	// listeners that can log to file/db or call another
+	// service.
+	print_r($data);
+});
+
+?>
+```
