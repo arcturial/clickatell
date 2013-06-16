@@ -2,6 +2,7 @@
     "name": "arcturial/clickatell",
     "type": "library",
     "description": "Clickatell SMS Gateway PHP Library",
+    "homepage": "http://www.cainsvault.com",
     "authors": [
         {
             "name": "Chris Brand",
