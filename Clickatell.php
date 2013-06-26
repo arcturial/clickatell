@@ -73,11 +73,11 @@ class Clickatell
      * @param string $username  API username
      * @param string $password  API password
      * @param int    $apiId     API ID (Sub-product ID)
-     * @param string $transport Transport protocol to use
+     * @param string $transport Transport protocol to use (defaults to HTTP api)
      *
      * @return boolean
      */
-    public function __construct($username, $password, $apiId, $transport)
+    public function __construct($username, $password, $apiId, $transport = self::HTTP_API)
     {
         // Register autoloader
         spl_autoload_register(array($this, '_autoLoad'));
