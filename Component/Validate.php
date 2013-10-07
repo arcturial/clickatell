@@ -43,8 +43,7 @@ class Validate
      */
     private static $_meta = array(
         'sendMessage' => array(
-            'to' => 'required|telephone',
-            'from' => 'telephone'
+            'to' => 'required|telephone'
         ),
         'getBalance' => array(
         ),
