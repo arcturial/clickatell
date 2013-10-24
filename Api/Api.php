@@ -62,7 +62,7 @@ abstract class Api
      * Instantiation of an API. This interface connects to Clickatell
      * retrieves the data and does a call to translate the data
      * into a known format.
-     *     
+     *
      * @param Clickatell\Component\Translate\TranslateInterface $translate Translate interface to use
      *
      * @return boolean
@@ -101,10 +101,22 @@ abstract class Api
     }
 
     /**
+     * Turn an array packet into url encoded query string.
+     *
+     * @param array $packet The packet to encode
+     *
+     * @return string
+     */
+    private function _buildQueryString(array $packet)
+    {
+        return http_build_query($packet);
+    }
+
+    /**
      * Do a CURL request to call the API.
      *
-     * @param string $url    URL to call
-     * @param array  $packet Packet to process
+     * @param string  $url     URL to call
+     * @param array   $packet  Packet to process
      *
      * @return string
      */
@@ -115,20 +127,15 @@ abstract class Api
             throw new TransferException(TransferException::ERR_CURL_DISABLED);
         }
 
-        // Create post string
-        $post = "";        
-        foreach ($packet as $key => $val) {
-            $post .= $key . "=" . $val . "&";
-        }
-        $post = trim($post, "&");
+        $post = $this->_buildQueryString($packet);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post); 
-        
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+
         $result = curl_exec($ch);
 
         // Check if the call completed
@@ -236,10 +243,10 @@ abstract class Api
      * @return mixed
      */
     public function call($method, array $args)
-    {   
+    {
         // Trigger request event
         $eventArgs = array_merge(
-            array('call' => $method), 
+            array('call' => $method),
             array('request' => $this->_mapArgs($method, $args))
         );
 

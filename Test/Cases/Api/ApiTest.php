@@ -54,11 +54,48 @@ class ApiTest extends PHPUnit_Framework_TestCase
 
         // Load a random clickatell library component
         $result = $method->invokeArgs(
-            $api, 
+            $api,
             array('http://api.clickatell.com/http/sendmsg', array())
         );
 
         $this->assertTrue(!empty($result));
+    }
+
+    /**
+     * Ensure the url encoding is done correctly.
+     *
+     * @return boolean
+     */
+    public function testEncoding()
+    {
+        // Set the query string and build up the packet.
+        $packet = array();
+        $query = "param1=value&param2=entry+something&param3=entry something";
+
+        foreach (explode("&", $query) as $row)
+        {
+            $entry = explode("=", $row);
+
+            $packet[$entry[0]] = $entry[1];
+        }
+
+
+        $api = $this->getMockBuilder('Clickatell\Api\Api')
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        // Make the private method accesible
+        $reflection = new ReflectionClass($api);
+        $method = $reflection->getMethod('_buildQueryString');
+        $method->setAccessible(true);
+
+        // Load a random clickatell library component
+        $result = $method->invokeArgs($api, array($packet));
+
+        // Parse the response
+        parse_str($result, $output);
+
+        $this->assertSame($packet, $output);
     }
 
     /**
@@ -75,7 +112,7 @@ class ApiTest extends PHPUnit_Framework_TestCase
         // Set the result as we expect it
         $expectedResult = array(
             "result" => array(
-                "status" => $status, 
+                "status" => $status,
                 "response" => $response
             )
         );
@@ -91,7 +128,7 @@ class ApiTest extends PHPUnit_Framework_TestCase
         $method->setAccessible(true);
 
         $this->assertSame(
-            $expectedResult, 
+            $expectedResult,
             $method->invokeArgs($transport, array($status, $response))
         );
     }
@@ -239,7 +276,7 @@ class ApiTest extends PHPUnit_Framework_TestCase
 
         // Call the method that should go through the translater
         $calledResult = $transport->call(
-            $methodToCall, 
+            $methodToCall,
             $args
         );
 
