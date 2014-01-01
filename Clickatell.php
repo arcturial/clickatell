@@ -22,6 +22,7 @@ use Clickatell\Exception\ApiException as ApiException;
 use \Closure as Closure;
 use Clickatell\Component\Event as Event;
 use Clickatell\Component\Validate as Validate;
+use \LogicException;
 
 /**
  * This is the main messenger class that encapsulates various objects to succesfully
@@ -91,7 +92,7 @@ class Clickatell
 
         // Add validation listener using events
         Event::on(
-            'request', 
+            'request',
             function ($data) {
 
                 $method = $data['call'];
@@ -113,14 +114,14 @@ class Clickatell
     private function _autoLoad($class)
     {
         $class = str_replace(
-            "\\", 
-            "/", 
+            "\\",
+            "/",
             preg_replace("/Clickatell\\\/", "", $class)
         );
-            
+
         if (is_file(__DIR__ . "/" . $class . ".php")) {
 
-            return (boolean) include_once __DIR__ . "/" . $class . ".php";   
+            return (boolean) include_once __DIR__ . "/" . $class . ".php";
         } else {
 
             return false;
@@ -139,7 +140,7 @@ class Clickatell
     private function _methodExists($interfaces, $method)
     {
         foreach ($interfaces as $interface) {
-            
+
             if (method_exists($interface, $method)) {
                 return true;
             }
@@ -184,9 +185,9 @@ class Clickatell
     }
 
     /**
-     * Magic to forward an API request to the Transport interface. 
-     * The Transport interface then ensures the method exists and 
-     * connects to Clickatell to complete the call. The messenger 
+     * Magic to forward an API request to the Transport interface.
+     * The Transport interface then ensures the method exists and
+     * connects to Clickatell to complete the call. The messenger
      * uses an Action object (the handler) to group these tasks.
      *
      * @param string $name      Method name
@@ -198,7 +199,7 @@ class Clickatell
     {
         // Get the interface the class uses
         $interfaces = class_implements($this->_transport);
-        
+
         if ($this->_methodExists($interfaces, $name)) {
 
             $callArgs = array($name, $arguments);
@@ -207,7 +208,42 @@ class Clickatell
 
         } else {
 
-            throw new ApiException(ApiException::ERR_METHOD_NOT_FOUND);    
+            throw new ApiException(ApiException::ERR_METHOD_NOT_FOUND);
         }
+    }
+
+
+    /**
+     * Triggers if a clickatell callback has been received by the page.
+     *
+     * @param Closure $closure The callable function
+     *
+     * @return boolean
+     */
+    public static function parseCallback(Closure $closure)
+    {
+        $required = array_flip(
+            array(
+                'apiMsgId',
+                'cliMsgId',
+                'to',
+                'timestamp',
+                'from',
+                'status',
+                'charge'
+            )
+        );
+
+        $values = array_intersect_key($_GET, $required);
+        $diff = array_diff_key($required, $values);
+
+        // If there are no difference, then it means the callback
+        // passed all the required values.
+        if (empty($diff))
+        {
+            return call_user_func_array($closure, array($values));
+        }
+
+        return false;
     }
 }

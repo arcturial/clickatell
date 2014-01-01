@@ -10,6 +10,7 @@ This library allows easy access to connecting the [Clickatell's](http://www.clic
 * Usage
 * Supported API calls
 * Events
+* Callbacks
 
 
 1. Installation
@@ -71,7 +72,7 @@ use Clickatell\Component\Transport\TransportSoap;
 use Clickatell\Component\Transport\TransportXml;
 
 use Clickatell\Component\Transport\TransportSmtp;
-``` 
+```
 
 These Transports all support the following functions
 
@@ -129,6 +130,32 @@ $clickatell->on('response', function($data) {
 	// listeners that can log to file/db or call another
 	// service.
 	print_r($data);
+});
+
+?>
+```
+
+
+5. Callbacks
+---------------
+
+You can listen to clickatell callbacks by using the `parseCallback();` function. It's a helper function
+to make sure the required parameters are including in the `$_GET` array.
+
+Parameters: apiMsgId, cliMsgId, to, timestamp, from, status, charge
+
+Example
+
+``` php
+<?php
+
+use Clickatell\Clickatell;
+
+
+Clickatell::parseCallback(function ($values) {
+
+    // var_dump($values);
+
 });
 
 ?>
