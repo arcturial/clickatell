@@ -214,7 +214,7 @@ class Clickatell
 
 
     /**
-     * Triggers if a clickatell callback has been received by the page.
+     * Triggers if a clickatell MT callback has been received by the page.
      *
      * @param Closure $closure The callable function
      *
