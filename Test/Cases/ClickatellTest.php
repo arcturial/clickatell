@@ -44,9 +44,9 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
     public function testAutoloader()
     {
         $clickatell = new Clickatell(
-            "username", 
-            "password", 
-            12345, 
+            "username",
+            "password",
+            12345,
             Clickatell::HTTP_API
         );
 
@@ -58,14 +58,14 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
         // Load a random clickatell library component
         $this->assertTrue(
             $method->invokeArgs(
-                $clickatell, 
+                $clickatell,
                 array('Clickatell\Exception\Diagnostic')
             )
         );
 
         $this->assertFalse(
             $method->invokeArgs(
-                $clickatell, 
+                $clickatell,
                 array('Clickatell\Exception\Unknown')
             )
         );
@@ -81,15 +81,15 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
     public function testTransportCreation()
     {
         $clickatell = new Clickatell(
-            "username", 
-            "password", 
-            12345, 
+            "username",
+            "password",
+            12345,
             Clickatell::HTTP_API
         );
 
         // Set the transport and ensure we get a chained object back.
         $this->assertInstanceOf(
-            "Clickatell\Api\Http", 
+            "Clickatell\Api\Http",
             $clickatell->getTransport()
         );
     }
@@ -107,9 +107,9 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
         $result = array("result" => "call done");
 
         $clickatell = new Clickatell(
-            "username", 
-            "password", 
-            12345, 
+            "username",
+            "password",
+            12345,
             Clickatell::HTTP_API
         );
 
@@ -128,7 +128,7 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
 
 
         $this->assertSame(
-            $result, 
+            $result,
             $clickatell->sendMessage(array(12345), "Test Message")
         );
     }
@@ -143,9 +143,9 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
     public function testMethodExists()
     {
         $clickatell = new Clickatell(
-            "username", 
-            "password", 
-            12345, 
+            "username",
+            "password",
+            12345,
             Clickatell::HTTP_API
         );
 
@@ -157,7 +157,7 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
         // Test existing method
         $this->assertTrue(
             $method->invokeArgs(
-                $clickatell, 
+                $clickatell,
                 array(array('Clickatell\Api\Definition\ApiInterface'), 'sendMessage')
             )
         );
@@ -165,9 +165,41 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
         // Test unknown method
         $this->assertFalse(
             $method->invokeArgs(
-                $clickatell, 
+                $clickatell,
                 array(array('Clickatell\Api\Definition\ApiInterface'), 'sendUnknown')
             )
         );
+    }
+
+    /**
+     * Test the parsing of callback information.
+     *
+     * @return boolean
+     */
+    public function testParseCallback()
+    {
+        $_GET = array(
+            'apiMsgId' => 1234,
+            'cliMsgId' => 12345,
+            'to' => 12345678,
+            'timestamp' => 0987654321,
+            'from' => 651234515,
+            'status' => '003',
+            'charge' => 0
+        );
+
+
+        $mock = $this->getMock('stdClass', array('callback'));
+        $mock->expects($this->once())
+            ->method('callback')
+            ->with($this->equalTo($_GET));
+
+        $func = function ($values) use ($mock) {
+            $mock->callback($values);
+        };
+
+
+        // Test
+        Clickatell::parseCallback($func);
     }
 }
