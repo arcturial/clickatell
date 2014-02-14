@@ -18,7 +18,7 @@ namespace Clickatell\Api\Definition;
 
 
 /**
- * This interface defines the required function for Transport handlers. 
+ * This interface defines the required function for Transport handlers.
  * It also specifies the supported API calls for bulk messaging processing.
  *
  * @category Clickatell
@@ -36,8 +36,9 @@ interface ApiBulkInterface
      * @param string  $message  Message
      * @param string  $from     The from number (sender ID)
      * @param boolean $callback Use the callback or not
+     * @param array   $extra    Extra parameters (based on Clickatell documents)
      *
      * @return mixed
      */
-    public function sendMessage(array $to, $message, $from = "", $callback = true);
+    public function sendMessage(array $to, $message, $from = "", $callback = true, $extra = array());
 }

@@ -62,8 +62,8 @@ class HttpTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensures that "sendMsg" HTTP call is working as 
-     * expected and returns the correctly wrapped array 
+     * Ensures that "sendMsg" HTTP call is working as
+     * expected and returns the correctly wrapped array
      * for a successful call.
      *
      * @return boolean.
@@ -78,8 +78,8 @@ class HttpTest extends PHPUnit_Framework_TestCase
             ->method('callApi')
             ->will($this->returnValue("ID: " . $apiMsgId));
 
-        $result = $this->_transport->sendMessage($to, $message);
-        
+        $result = $this->_transport->sendMessage($to, $message, "", true, array('delivery_time' => 10));
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertSame($apiMsgId, $result['result']['response']['apiMsgId']);
@@ -100,7 +100,7 @@ class HttpTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue("Credit: " . $balance));
 
         $result = $this->_transport->getBalance();
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['balance']));
 
@@ -126,7 +126,7 @@ class HttpTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue("ID: " . $apiMsgId . " Status: " . $status));
 
         $result = $this->_transport->queryMessage($apiMsgId);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertTrue(isset($result['result']['response']['status']));
@@ -137,7 +137,7 @@ class HttpTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the "routeCoverage" HTTP call and ensures the 
+     * Tests the "routeCoverage" HTTP call and ensures the
      * response is wrapped correctly.
      *
      * @return boolean
@@ -153,7 +153,7 @@ class HttpTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue("OK: " . $message . " Charge: " . $charge));
 
         $result = $this->_transport->routeCoverage($msisdn);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['charge']));
         $this->assertTrue(isset($result['result']['response']['description']));
@@ -177,14 +177,14 @@ class HttpTest extends PHPUnit_Framework_TestCase
             ->method('callApi')
             ->will(
                 $this->returnValue(
-                    "apiMsgId: " . $apiMsgId 
-                    . " charge: " . $charge 
+                    "apiMsgId: " . $apiMsgId
+                    . " charge: " . $charge
                     . " status: " . $status
                 )
             );
 
         $result = $this->_transport->getMessageCharge($apiMsgId);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertTrue(isset($result['result']['response']['status']));

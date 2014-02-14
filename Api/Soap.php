@@ -58,20 +58,20 @@ class Soap extends Api implements ApiInterface
 
         // Match the action
         foreach ($paramList as $key => $value) {
-            
+
             if (strpos($value, $action) !== false) {
-                
-                // Matched  
+
+                // Matched
                 preg_match_all("/\\$([a-z_]*)/", $value, $matches);
 
-                $result = $matches[1]; 
+                $result = $matches[1];
                 $result = array_flip($result);
                 break;
             }
         }
 
         foreach ($result as $key => $value) {
-            
+
             $result[$key] = isset($param[$key]) ? $param[$key] : '';
         }
 
@@ -92,18 +92,18 @@ class Soap extends Api implements ApiInterface
         if (!class_exists('\SoapClient')) {
             throw new TransferException(TransferException::ERR_SOAP_DISABLED);
         }
-        
+
         try {
-                
+
             $soap = new SoapClient(
-                self::SOAP_ENDPOINT, 
+                self::SOAP_ENDPOINT,
                 array("exceptions" => 1, "trace" => 1)
             );
 
             $packet = $this->_refreshParameterList($soap, $url, $packet);
 
             return $soap->__soapCall($url, $packet);
-            
+
         } catch (Exception $exception) {
 
             throw new TransferException(TransferException::ERR_HANLDER_EXCEPTION);
@@ -111,22 +111,14 @@ class Soap extends Api implements ApiInterface
     }
 
     /**
-     * The "sendMsg" SOAP call. Builds up the request and handles the response
-     * from Clickatell.
-     *
-     * @param array   $to       Recipient list
-     * @param string  $message  Message
-     * @param string  $from     From address (sender ID)
-     * @param boolean $callback Use callback or not
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function sendMessage(array $to, $message, $from = "", $callback = true)
-    {      
+    public function sendMessage(array $to, $message, $from = "", $callback = true, $extra = array())
+    {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id'];  
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Build data packet
         $packet['to'] = $to;
@@ -134,8 +126,10 @@ class Soap extends Api implements ApiInterface
         $packet['from'] = $from;
         $packet['callback'] = $callback;
 
+        $this->extractExtra($extra, $packet);
+
         $result = $this->callApi('sendmsg', $packet);
-        
+
         $result = $this->extract(array_shift($result));
 
         if (!isset($result['ERR'])) {
@@ -143,7 +137,7 @@ class Soap extends Api implements ApiInterface
             $packet = array();
             $packet['apiMsgId'] = (string) $result['ID'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -159,12 +153,12 @@ class Soap extends Api implements ApiInterface
     public function getBalance()
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         $result = $this->callApi('getbalance', $packet);
-        
+
         $result = $this->extract($result);
 
         if (!isset($result['ERR'])) {
@@ -172,7 +166,7 @@ class Soap extends Api implements ApiInterface
             $packet = array();
             $packet['balance'] = (float) $result['Credit'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -190,15 +184,15 @@ class Soap extends Api implements ApiInterface
     public function queryMessage($apiMsgId)
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Gather data
-        $packet['apimsgid'] = $apiMsgId; 
+        $packet['apimsgid'] = $apiMsgId;
 
         $result = $this->callApi('querymsg', $packet);
-        
+
         $result = $this->extract(array_shift($result));
 
         if (!isset($result['ERR'])) {
@@ -208,7 +202,7 @@ class Soap extends Api implements ApiInterface
             $packet['status']   = $result['Status'];
             $packet['description']  = Diagnostic::getError($result['Status']);
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -226,15 +220,15 @@ class Soap extends Api implements ApiInterface
     public function routeCoverage($msisdn)
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Gather packet
         $packet['msisdn'] = $msisdn;
 
         $result = $this->callApi('routeCoverage', $packet);
-        
+
         $result = $this->extract($result);
 
         if (!isset($result['ERR'])) {
@@ -243,7 +237,7 @@ class Soap extends Api implements ApiInterface
             $packet['description'] = (string) $result['OK'];
             $packet['charge'] = (float) $result['Charge'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -261,26 +255,26 @@ class Soap extends Api implements ApiInterface
     public function getMessageCharge($apiMsgId)
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Gather packet
         $packet['apimsgid'] = $apiMsgId;
 
         $result = $this->callApi('getmsgcharge', $packet);
-        
+
         $result = $this->extract(array_shift($result));
 
         if (!isset($result['ERR'])) {
 
             $packet = array();
             $packet['apiMsgId'] = (string) $result['apiMsgId'];
-            $packet['status']   = $result['status'];            
+            $packet['status']   = $result['status'];
             $packet['description']  = Diagnostic::getError($result['status']);
             $packet['charge']   = (float) $result['charge'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 

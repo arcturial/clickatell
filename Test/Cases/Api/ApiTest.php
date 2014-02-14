@@ -36,6 +36,29 @@ use \ReflectionClass as ReflectionClass;
 class ApiTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * Ensure the extractExtra function maps the values correctly.
+     *
+     * @return boolean
+     */
+    public function testExtractExtra()
+    {
+        $api = $this->getMockBuilder('Clickatell\Api\Api')
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        // Make the protected method accesible
+        $reflection = new ReflectionClass($api);
+        $method = $reflection->getMethod('extractExtra');
+        $method->setAccessible(true);
+
+        $packet = array();
+        $extra = array('delivery_time' => 10, 'max_credits' => 20);
+        $method->invokeArgs($api, array($extra, &$packet));
+
+        $this->assertSame(array('deliv_time' => 10, 'max_credits' => 20), $packet);
+    }
+
+    /**
      * Ensure that the call curl can reach the outside and
      * do some nice work for us.
      *

@@ -20,6 +20,7 @@ use Clickatell\Component\Translate\TranslateInterface as TranslateInterface;
 use Clickatell\Exception\TransferException as TransferException;
 use Clickatell\Component\Event as Event;
 use \ReflectionClass as ReflectionClass;
+use \InvalidArgumentException;
 
 /**
  * This is an abstraction of the Api class. It contains some default
@@ -51,6 +52,17 @@ abstract class Api
      * @var Clickatell\Component\Translate\TranslateInterface
      */
     private $_translate;
+
+    /**
+     * Supported 'extra' parameters
+     * @var array
+     */
+    private $_supportedExtra = array(
+        'delivery_time' => 'deliv_time',
+        'concatenation' => 'concat',
+        'max_credits' => 'max_credits',
+        'required_features' => 'req_feat',
+    );
 
     /**
      * Stores the authentication details
@@ -128,7 +140,7 @@ abstract class Api
         }
 
         $post = $this->_buildQueryString($packet);
-
+var_dump($post);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -146,6 +158,33 @@ abstract class Api
         } else {
 
             throw new TransferException(TransferException::ERR_HANLDER_EXCEPTION);
+        }
+    }
+
+    /**
+     * Extract array keys in the $extra parameters to the an
+     * array.
+     *
+     * @param array $extra  The extra parameters
+     * @param array $packet The packet to send to the API
+     *
+     * @return boolean
+     */
+    protected function extractExtra($extra, &$packet)
+    {
+        foreach ($extra as $key => $value)
+        {
+            if (array_key_exists($key, $this->_supportedExtra))
+            {
+                $packet[$this->_supportedExtra[$key]] = $value;
+            }
+            else
+            {
+                throw new InvalidArgumentException(
+                    '"' . $key . '" parameter not supported. (supported: '
+                    . implode(",", $this->_supportedExtra) . ')'
+                );
+            }
         }
     }
 

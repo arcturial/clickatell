@@ -53,7 +53,7 @@ class Smtp extends Api implements ApiBulkInterface
 
         foreach ($packet as $key => $val) {
             $content .= $key . ":" . $val . "\r\n";
-        }   
+        }
 
         // From address doesn't really matter
         $headers = 'From: request@domain.com' . '\r\n';
@@ -68,29 +68,22 @@ class Smtp extends Api implements ApiBulkInterface
     }
 
     /**
-     * The "sendMsg" SMTP call. Builds up the request and handles the response
-     * from Clickatell. Unfortunately we have to fake the response. We can't
-     * retrieve the API Message ID from the SMTP call.
-     *
-     * @param array   $to       Recipient list
-     * @param string  $message  Message
-     * @param string  $from     From address (sender ID)
-     * @param boolean $callback Use callback or not
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function sendMessage(array $to, $message, $from = "", $callback = true)
-    {      
+    public function sendMessage(array $to, $message, $from = "", $callback = true, $extra = array())
+    {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id'];  
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Build data packet
         $packet['to'] = implode(",", $to);
         $packet['text'] = $message;
         $packet['from'] = $from;
         $packet['callback'] = $callback;
+
+        $this->extractExtra($extra, $packet);
 
         $result = $this->callApi('http://api.clickatell.com/http/sendmsg', $packet);
 
@@ -101,7 +94,7 @@ class Smtp extends Api implements ApiBulkInterface
             $packet = array();
             $packet['apiMsgId'] = "-1";
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 

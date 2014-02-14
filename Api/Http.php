@@ -42,21 +42,24 @@ class Http extends Api implements ApiInterface
      * @param string  $message  Message
      * @param string  $from     From address (sender ID)
      * @param boolean $callback Use callback or not
+     * @param array   $extra    Extra parameters (based on Clickatell documents)
      *
      * @return array
      */
-    public function sendMessage(array $to, $message, $from = "", $callback = true)
-    {      
+    public function sendMessage(array $to, $message, $from = "", $callback = true, $extra = array())
+    {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id'];  
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Build data packet
         $packet['to'] = implode(",", $to);
         $packet['text'] = $message;
         $packet['from'] = $from;
         $packet['callback'] = $callback;
+
+        $this->extractExtra($extra, $packet);
 
         $result = $this->callApi('http://api.clickatell.com/http/sendmsg', $packet);
 
@@ -67,7 +70,7 @@ class Http extends Api implements ApiInterface
             $packet = array();
             $packet['apiMsgId'] = (string) $result['ID'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -83,12 +86,12 @@ class Http extends Api implements ApiInterface
     public function getBalance()
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         $result = $this->callApi(
-            'http://api.clickatell.com/http/getbalance', 
+            'http://api.clickatell.com/http/getbalance',
             $packet
         );
 
@@ -99,7 +102,7 @@ class Http extends Api implements ApiInterface
             $packet = array();
             $packet['balance'] = (float) $result['Credit'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -117,9 +120,9 @@ class Http extends Api implements ApiInterface
     public function queryMessage($apiMsgId)
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Gather packet
         $packet['apiMsgId'] = $apiMsgId;
@@ -129,13 +132,13 @@ class Http extends Api implements ApiInterface
         $result = $this->extract($result);
 
         if (!isset($result['ERR'])) {
-            
+
             $packet = array();
             $packet['apiMsgId'] = (string) $result['ID'];
             $packet['status'] = $result['Status'];
             $packet['description'] = Diagnostic::getError($result['Status']);
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
 
@@ -153,30 +156,30 @@ class Http extends Api implements ApiInterface
     public function routeCoverage($msisdn)
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Gather packet
         $packet['msisdn'] = $msisdn;
 
         $result = $this->callApi(
-            'http://api.clickatell.com/utils/routeCoverage', 
+            'http://api.clickatell.com/utils/routeCoverage',
             $packet
         );
 
         $result = $this->extract($result);
 
         if (!isset($result['ERR'])) {
-            
+
             $packet = array();
             $packet['description'] = (string) $result['OK'];
             $packet['charge'] = (float) $result['Charge'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
-            
+
             return $this->wrapResponse(Api::RESULT_FAILURE, $result['ERR']);
         }
     }
@@ -191,9 +194,9 @@ class Http extends Api implements ApiInterface
     public function getMessageCharge($apiMsgId)
     {
         // Grab auth out of the session
-        $packet['user'] = $this->auth['user'];  
-        $packet['password'] = $this->auth['password'];  
-        $packet['api_id'] = $this->auth['api_id']; 
+        $packet['user'] = $this->auth['user'];
+        $packet['password'] = $this->auth['password'];
+        $packet['api_id'] = $this->auth['api_id'];
 
         // Gather packet
         $packet['apiMsgId'] = $apiMsgId;
@@ -206,17 +209,17 @@ class Http extends Api implements ApiInterface
         $result = $this->extract($result);
 
         if (!isset($result['ERR'])) {
-            
+
             $packet = array();
             $packet['apiMsgId'] = (string) $result['apiMsgId'];
-            $packet['status']   = $result['status'];            
+            $packet['status']   = $result['status'];
             $packet['description']  = Diagnostic::getError($result['status']);
             $packet['charge']   = (float) $result['charge'];
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
 
         } else {
-            
+
             return $this->wrapResponse(Api::RESULT_FAILURE, $result['ERR']);
         }
     }
