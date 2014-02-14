@@ -77,7 +77,7 @@ use Clickatell\Component\Transport\TransportSmtp;
 These Transports all support the following functions
 
 ``` php
-sendMessage(array $to, string $message, $from = "", $callback = true);
+sendMessage(array $to, string $message, $from = "", $callback = true, $extra = array());
 
 getBalance();
 
@@ -100,7 +100,7 @@ use Clickatell\Component\Transport\TransportSMTP;
 These Transports all support the following functions
 
 ``` php
-sendMessage(array $to, string $message, $from = "", $callback = true);
+sendMessage(array $to, string $message, $from = "", $callback = true, $extra = array());
 ```
 
 
