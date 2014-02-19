@@ -140,7 +140,7 @@ abstract class Api
         }
 
         $post = $this->_buildQueryString($packet);
-var_dump($post);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
