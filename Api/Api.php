@@ -62,6 +62,7 @@ abstract class Api
         'concatenation' => 'concat',
         'max_credits' => 'max_credits',
         'required_features' => 'req_feat',
+        'unicode' => 'unicode'
     );
 
     /**
