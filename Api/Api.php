@@ -200,15 +200,14 @@ abstract class Api
      */
     protected function extract($response)
     {
-        preg_match_all("/([A-Za-z]+):((.(?![A-Za-z]+:))*)/", $response, $matches);
+        $result = array_map(function($element){
+            if(preg_match('/[a-fA-F\d]{32}/', $element, $matches)){
+                return $matches[0];
+            }
+            return $element;
+        }, explode(PHP_EOL,$response));
 
-        $result = array();
-
-        foreach ($matches[1] as $index => $status) {
-            $result[$status] = trim($matches[2][$index]);
-        }
-
-        return $result;
+        return array_filter($result);
     }
 
     /**
