@@ -285,16 +285,18 @@ abstract class Api
     public function call($method, array $args)
     {
         // Trigger request event
+        $mapArgs = $this->_mapArgs($method, $args);
+
         $eventArgs = array_merge(
             array('call' => $method),
-            array('request' => $this->_mapArgs($method, $args))
+            array('request' => &$mapArgs)
         );
 
         Event::trigger('request', $eventArgs);
 
         // Execute the method
         $result = $this->_translate->translate(
-            call_user_func_array(array($this, $method), $args)
+            call_user_func_array(array($this, $method), $mapArgs)
         );
 
         // Trigger response event
