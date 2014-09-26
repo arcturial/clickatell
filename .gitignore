@@ -1,3 +1,4 @@
 vendor/
 stage.php
 composer.phar
+composer.lock

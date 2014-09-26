@@ -264,11 +264,11 @@ class ApiTest extends PHPUnit_Framework_TestCase
         // Call getTranslater just because we don't
         // have access to API functions without
         // introducing more dependencies
-        $methodToCall = 'getTranslater';
+        $methodToCall = 'sendMessage';
 
         $args = array(
-            'to' => array('123456789'),
-            'text' => 'Message to send'
+            0 => array('123456789'),
+            1 => 'Message to send'
         );
 
         $result = array("result" => "success");
@@ -280,15 +280,15 @@ class ApiTest extends PHPUnit_Framework_TestCase
         );
 
         // Mock the abstract class, since we can't instantiate it
-        $transport = $this->getMockBuilder('Clickatell\Api\Api')
+        $transport = $this->getMockBuilder('Clickatell\Api\Http')
             ->setConstructorArgs(array($translate))
             ->setMethods(array($methodToCall))
-            ->getMockForAbstractClass();
+            ->getMock();
 
         // Make sure the transport gets called with the method
         $transport->expects($this->any())
             ->method($methodToCall)
-            ->with($this->equalTo($args['to']), $this->equalTo($args['text']))
+            ->with($this->equalTo($args[0]), $this->equalTo($args[1]))
             ->will($this->returnValue($result));
 
         // Make sure the translater gets triggered with what it needs
