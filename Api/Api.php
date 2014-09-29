@@ -63,7 +63,7 @@ abstract class Api
         'max_credits' => 'max_credits',
         'required_features' => 'req_feat',
         'unicode' => 'unicode',
-        'mobile_orginated' => 'mo',
+        'mobile_originated' => 'mo',
         'client_message_id' => 'cliMsgId'
     );
 
