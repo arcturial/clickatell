@@ -10,6 +10,7 @@ This library allows easy access to connecting the [Clickatell's](http://www.clic
 * Usage
 * Supported API calls
 * Events
+* Dealing with unsupported parameters
 * Callbacks
 
 
@@ -120,6 +121,12 @@ $clickatell = new Clickatell('[username]', '[password]', [api_id], Clickatell::H
 
 $clickatell->on('request', function($data) {
 	// $data = The parameters passed to the request
+
+    // The data array is passed by reference so you can change
+    // any of the values before sending.
+
+    // $data['message'] = "My Message Override."
+    // $data['extra'] = array("mo" => true);
 	print_r($data);
 });
 
@@ -135,8 +142,14 @@ $clickatell->on('response', function($data) {
 ?>
 ```
 
+5. Dealing with unsupported parameters
+--------------------------------------
 
-5. Callbacks
+Some parameters are not supported by default, but can still be passed to the individual
+
+
+
+6. Callbacks
 ---------------
 
 You can listen to clickatell callbacks by using the `parseCallback();` function. It's a helper function
