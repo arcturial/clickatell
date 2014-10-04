@@ -105,16 +105,16 @@ class Http extends Api implements ApiInterface
 
         $result = $this->extract($result);
 
-        if (!isset($result['ERR'])) {
+        if(preg_match('/[a-fA-F\d]{32}/', $result[0], $matches)){
 
             $packet = array();
-            $packet['balance'] = (float) $result['Credit'];
+            $packet['apiMsgId'] = $result;
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet); 
 
         } else {
 
-            return $this->wrapResponse(Api::RESULT_FAILURE, $result['ERR']);
+            return $this->wrapResponse(Api::RESULT_FAILURE, $result);
         }
     }
 
