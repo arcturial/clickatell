@@ -63,18 +63,26 @@ class Http extends Api implements ApiInterface
 
         $result = $this->callApi('http://api.clickatell.com/http/sendmsg', $packet);
 
-        $result = $this->extract($result);
+        $result = $this->extract($result, true);
+        $error = false;
+        $return = array();
 
-        if (!isset($result['ERR'])) {
+        foreach ($result as $row) {
+            if (isset($row['ERR'])) {
+                $error = true;
+            }
 
-            $packet = array();
-            $packet['apiMsgId'] = (string) $result['ID'];
+            $return[] = array(
+                'apiMsgId' => (isset($row['ID'])) ? $row['ID'] : false,
+                'to' => (isset($row['To'])) ? $row['To'] : $packet['to'],
+                'error' => (isset($row['ERR'])) ? $row['ERR'] : false
+            );
+        }
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
-
+        if (!$error) {
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $return);
         } else {
-
-            return $this->wrapResponse(Api::RESULT_FAILURE, $result['ERR']);
+            return $this->wrapResponse(Api::RESULT_FAILURE, $return);
         }
     }
 

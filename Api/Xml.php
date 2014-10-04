@@ -43,25 +43,26 @@ class Xml extends Api implements ApiInterface
     const XML_ENDPOINT = "http://api.clickatell.com/xml/xml";
 
     /**
-     * Extracts the result from the framework into an associative
-     * array.
-     *
-     * @param string $response Response string from API
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    protected function extract($response)
+    protected function extract($response, $multi = false)
     {
         $iterator = new SimpleXMLIterator($response);
         $iterator->rewind();
 
         $result = array();
 
-        foreach ($iterator->getChildren() as $elementName => $node) {
-            $result[$elementName] = (string) $node;
+        foreach ($iterator as $entry) {
+            $row = array();
+            foreach ($entry as $elementName => $node) {
+                $string = preg_replace("/To:(.*)/", "", (string) $node);
+                $row[$elementName] = trim($string);
+            }
+
+            $result[] = $row;
         }
 
-        return $result;
+        return $multi ? $result : current($result);
     }
 
     /**
@@ -89,18 +90,26 @@ class Xml extends Api implements ApiInterface
             array('data' => Utility::arrayToString($xmlPacket))
         );
 
-        $result = $this->extract($result);
+        $result = $this->extract($result, true);
+        $error = false;
+        $return = array();
 
-        if (!isset($result['fault'])) {
+        foreach ($result as $row) {
+            if (isset($row['fault'])) {
+                $error = true;
+            }
 
-            $packet = array();
-            $packet['apiMsgId'] = (string) $result['apiMsgId'];
+            $return[] = array(
+                'apiMsgId' => (isset($row['apiMsgId'])) ? $row['apiMsgId'] : false,
+                'to' => (isset($row['to'])) ? $row['to'] : $packet['to'],
+                'error' => (isset($row['fault'])) ? $row['fault'] : false
+            );
+        }
 
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
-
+        if (!$error) {
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $return);
         } else {
-
-            return $this->wrapResponse(Api::RESULT_FAILURE, $result['fault']);
+            return $this->wrapResponse(Api::RESULT_FAILURE, $return);
         }
     }
 

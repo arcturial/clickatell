@@ -37,8 +37,12 @@ The default transport is HTTP.
 ``` php
 $clickatell = new Clickatell($username, $password, $apiID);
 
-$clickatell->sendMessage(1111111111, "My Message");
+$response = $clickatell->sendMessage(1111111111, "My Message");
+
+// {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
 ```
+
+The response you get back will be JSON (as indicated above) that will contain two keys (status, response). The 'response' key will be an array of messages and their message ID's (even if you just specified one number). The response will always be an array so that consistency between different packets can be maintained.
 
 You can specify a different output using the Clickatell constructor or using the setTransport() method.
 

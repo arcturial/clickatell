@@ -81,8 +81,35 @@ class HttpTest extends PHPUnit_Framework_TestCase
         $result = $this->_transport->sendMessage($to, $message, "", true, array('delivery_time' => 10));
 
         $this->assertTrue(is_array($result));
-        $this->assertTrue(isset($result['result']['response']['apiMsgId']));
-        $this->assertSame($apiMsgId, $result['result']['response']['apiMsgId']);
+        $this->assertTrue(isset($result['result']['response'][0]['apiMsgId']));
+        $this->assertSame($apiMsgId, $result['result']['response'][0]['apiMsgId']);
+    }
+
+    /**
+     * Ensures that "sendMsg" call works with multi results
+     *
+     * @return boolean.
+     */
+    public function testSendMessageMulti()
+    {
+        $to = array(12345, 123456);
+        $message = "My Message";
+        $apiMsgId = "1234567890";
+
+        $this->_transport->expects($this->once())
+            ->method('callApi')
+            ->will($this->returnValue("ID: " . $apiMsgId . " To:" . $to[0] . "\nID:" . $apiMsgId . " To:" . $to[1]));
+
+        $result = $this->_transport->sendMessage($to, $message, "", true, array('delivery_time' => 10));
+
+        $this->assertTrue(is_array($result));
+        $this->assertSame($apiMsgId, $result['result']['response'][0]['apiMsgId']);
+        $this->assertEquals($to[0], $result['result']['response'][0]['to']);
+        $this->assertFalse($result['result']['response'][0]['error']);
+
+        $this->assertSame($apiMsgId, $result['result']['response'][1]['apiMsgId']);
+        $this->assertEquals($to[1], $result['result']['response'][1]['to']);
+        $this->assertFalse($result['result']['response'][1]['error']);
     }
 
 

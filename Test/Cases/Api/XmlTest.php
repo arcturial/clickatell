@@ -44,21 +44,34 @@ class XmlTest extends PHPUnit_Framework_TestCase
      * Create a result packet. The result is formed
      * like Clickatell would form it.
      *
-     * @param array $param Parameters to create
+     * @param array   $param Parameters to create
+     * @param boolean $multi Multiple input values
      *
      * @return string
      */
-    private function _createResult(array $param)
+    private function _createResult(array $param, $multi = false)
     {
         $result = "<clickAPI>";
-        $result .= "<response>";
 
-        foreach ($param as $key => $val) {
-            $result .= "<".$key.">".$val."</".$key.">";
+        if ($multi) {
+            foreach ($param as $key => $row) {
+                $result .= "<response>";
+                foreach ($row as $key => $val) {
+                    $result .= "<".$key.">".$val."</".$key.">";
+                }
+                $result .= "</response>";
+            }
+        } else {
+            $result .= "<response>";
+
+            foreach ($param as $key => $val) {
+                $result .= "<".$key.">".$val."</".$key.">";
+            }
+
+            $result .= "</response>";
         }
 
-        $result .= "</response>";
-        $result .= "</clickAPI>";  
+        $result .= "</clickAPI>";
 
         return $result;
     }
@@ -85,8 +98,8 @@ class XmlTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensures that "sendMsg" XML call is working as 
-     * expected and returns the correctly wrapped array 
+     * Ensures that "sendMsg" XML call is working as
+     * expected and returns the correctly wrapped array
      * for a successful call.
      *
      * @return boolean.
@@ -108,12 +121,48 @@ class XmlTest extends PHPUnit_Framework_TestCase
             );
 
         $result = $this->_transport->sendMessage($to, $message);
-        
+
         $this->assertTrue(is_array($result));
-        $this->assertTrue(isset($result['result']['response']['apiMsgId']));
-        $this->assertSame($apiMsgId, $result['result']['response']['apiMsgId']);
+        $this->assertTrue(isset($result['result']['response'][0]['apiMsgId']));
+        $this->assertSame($apiMsgId, $result['result']['response'][0]['apiMsgId']);
     }
 
+    /**
+     * Ensures that "sendMsg" call works with multi results
+     *
+     * @return boolean.
+     */
+    public function testSendMessageMulti()
+    {
+        $to = array(12345, 123456);
+        $message = "My Message";
+        $apiMsgId = "1234567890";
+
+        $this->_transport->expects($this->once())
+            ->method('callApi')
+            ->will(
+                $this->returnValue(
+                    $this->_createResult(
+                        array(
+                            array('apiMsgId' => $apiMsgId . " To:" . $to[0], "to" => $to[0]),
+                            array('apiMsgId' => $apiMsgId . " To:" . $to[1], "to" => $to[1])
+                        ),
+                        true
+                    )
+                )
+            );
+
+        $result = $this->_transport->sendMessage($to, $message, "", true, array('delivery_time' => 10));
+
+        $this->assertTrue(is_array($result));
+        $this->assertSame($apiMsgId, $result['result']['response'][0]['apiMsgId']);
+        $this->assertEquals($to[0], $result['result']['response'][0]['to']);
+        $this->assertFalse($result['result']['response'][0]['error']);
+
+        $this->assertSame($apiMsgId, $result['result']['response'][1]['apiMsgId']);
+        $this->assertEquals($to[1], $result['result']['response'][1]['to']);
+        $this->assertFalse($result['result']['response'][1]['error']);
+    }
 
     /**
      * Ensures that "getBalance" XML call is still working the way it should.
@@ -135,7 +184,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             );
 
         $result = $this->_transport->getBalance();
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['balance']));
 
@@ -167,7 +216,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             );
 
         $result = $this->_transport->queryMessage($apiMsgId);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertTrue(isset($result['result']['response']['status']));
@@ -178,7 +227,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the "routeCoverage" XML call and ensures the 
+     * Tests the "routeCoverage" XML call and ensures the
      * response is wrapped correctly.
      *
      * @return boolean
@@ -200,7 +249,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             );
 
         $result = $this->_transport->routeCoverage($msisdn);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['charge']));
         $this->assertTrue(isset($result['result']['response']['description']));
@@ -226,8 +275,8 @@ class XmlTest extends PHPUnit_Framework_TestCase
                 $this->returnValue(
                     $this->_createResult(
                         array(
-                            'apiMsgId' => $apiMsgId, 
-                            'status' => $status, 
+                            'apiMsgId' => $apiMsgId,
+                            'status' => $status,
                             'charge' => $charge
                         )
                     )
@@ -235,7 +284,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             );
 
         $result = $this->_transport->getMessageCharge($apiMsgId);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertTrue(isset($result['result']['response']['status']));

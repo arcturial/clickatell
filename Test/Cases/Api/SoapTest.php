@@ -62,8 +62,8 @@ class SoapTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensures that "sendMsg" SOAP call is working as 
-     * expected and returns the correctly wrapped array 
+     * Ensures that "sendMsg" SOAP call is working as
+     * expected and returns the correctly wrapped array
      * for a successful call.
      *
      * @return boolean.
@@ -79,10 +79,37 @@ class SoapTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue(array('ID: ' . $apiMsgId)));
 
         $result = $this->_transport->sendMessage($to, $message);
-        
+
         $this->assertTrue(is_array($result));
-        $this->assertTrue(isset($result['result']['response']['apiMsgId']));
-        $this->assertSame($apiMsgId, $result['result']['response']['apiMsgId']);
+        $this->assertTrue(isset($result['result']['response'][0]['apiMsgId']));
+        $this->assertSame($apiMsgId, $result['result']['response'][0]['apiMsgId']);
+    }
+
+    /**
+     * Ensures that "sendMsg" call works with multi results
+     *
+     * @return boolean.
+     */
+    public function testSendMessageMulti()
+    {
+        $to = array(12345, 123456);
+        $message = "My Message";
+        $apiMsgId = "1234567890";
+
+        $this->_transport->expects($this->once())
+            ->method('callApi')
+            ->will($this->returnValue(array("ID: " . $apiMsgId . " To:" . $to[0], "ID:" . $apiMsgId . " To:" . $to[1])));
+
+        $result = $this->_transport->sendMessage($to, $message, "", true, array('delivery_time' => 10));
+
+        $this->assertTrue(is_array($result));
+        $this->assertSame($apiMsgId, $result['result']['response'][0]['apiMsgId']);
+        $this->assertEquals($to[0], $result['result']['response'][0]['to']);
+        $this->assertFalse($result['result']['response'][0]['error']);
+
+        $this->assertSame($apiMsgId, $result['result']['response'][1]['apiMsgId']);
+        $this->assertEquals($to[1], $result['result']['response'][1]['to']);
+        $this->assertFalse($result['result']['response'][1]['error']);
     }
 
 
@@ -100,7 +127,7 @@ class SoapTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue('Credit: ' . $balance));
 
         $result = $this->_transport->getBalance();
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['balance']));
 
@@ -130,7 +157,7 @@ class SoapTest extends PHPUnit_Framework_TestCase
             );
 
         $result = $this->_transport->queryMessage($apiMsgId);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertTrue(isset($result['result']['response']['status']));
@@ -141,7 +168,7 @@ class SoapTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests the "routeCoverage" SOAP call and ensures the 
+     * Tests the "routeCoverage" SOAP call and ensures the
      * response is wrapped correctly.
      *
      * @return boolean
@@ -157,7 +184,7 @@ class SoapTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue('OK: ' . $message . ' Charge: ' . $charge));
 
         $result = $this->_transport->routeCoverage($msisdn);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['charge']));
         $this->assertTrue(isset($result['result']['response']['description']));
@@ -182,15 +209,15 @@ class SoapTest extends PHPUnit_Framework_TestCase
             ->will(
                 $this->returnValue(
                     array(
-                        'apiMsgId: ' . $apiMsgId 
-                        . ' status: ' . $status 
+                        'apiMsgId: ' . $apiMsgId
+                        . ' status: ' . $status
                         . ' charge: ' . $charge
                     )
                 )
             );
 
         $result = $this->_transport->getMessageCharge($apiMsgId);
-        
+
         $this->assertTrue(is_array($result));
         $this->assertTrue(isset($result['result']['response']['apiMsgId']));
         $this->assertTrue(isset($result['result']['response']['status']));

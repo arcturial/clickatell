@@ -129,19 +129,26 @@ class Soap extends Api implements ApiInterface
         $this->extractExtra($extra, $packet);
 
         $result = $this->callApi('sendmsg', $packet);
+        $result = $this->extract(implode("\n", $result), true);
+        $error = false;
+        $return = array();
 
-        $result = $this->extract(array_shift($result));
+        foreach ($result as $row) {
+            if (isset($row['ERR'])) {
+                $error = true;
+            }
 
-        if (!isset($result['ERR'])) {
+            $return[] = array(
+                'apiMsgId' => (isset($row['ID'])) ? $row['ID'] : false,
+                'to' => (isset($row['To'])) ? $row['To'] : $packet['to'],
+                'error' => (isset($row['ERR'])) ? $row['ERR'] : false
+            );
+        }
 
-            $packet = array();
-            $packet['apiMsgId'] = (string) $result['ID'];
-
-            return $this->wrapResponse(Api::RESULT_SUCCESS, $packet);
-
+        if (!$error) {
+            return $this->wrapResponse(Api::RESULT_SUCCESS, $return);
         } else {
-
-            return $this->wrapResponse(Api::RESULT_FAILURE, $result['ERR']);
+            return $this->wrapResponse(Api::RESULT_FAILURE, $return);
         }
     }
 
