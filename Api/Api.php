@@ -54,6 +54,11 @@ abstract class Api
     private $_translate;
 
     /**
+     * Turn off ssl verification for local testing
+     */
+    private $_sslVerification = 2;
+
+    /**
      * Supported 'extra' parameters
      * @var array
      */
@@ -122,7 +127,7 @@ abstract class Api
      *
      * @return string
      */
-    private function _buildQueryString(array $packet)
+    protected function _buildQueryString(array $packet)
     {
         return http_build_query($packet);
     }
@@ -251,7 +256,7 @@ abstract class Api
      *
      * @return boolean
      */
-    public function authenticate($user, $password, $apiId)
+    public function authenticateUser($user, $password, $apiId)
     {
         $this->auth['user'] = $user;
         $this->auth['password'] = $password;
@@ -259,6 +264,23 @@ abstract class Api
 
         return true;
     }
+
+    /**
+     * Authenticates the current API request and stores the auth details.
+     *
+     * @param string $user     Username to auth
+     * @param string $password Password to use
+     * @param int    $apiId    ApiID to call
+     *
+     * @return boolean
+     */
+    public function authenticateByToken($token)
+    {
+        $this->auth['token'] = $token;
+
+        return true;
+    }
+
 
     /**
      * Set the data translater to use. The translater will take the

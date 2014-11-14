@@ -231,4 +231,12 @@ class Http extends Api implements ApiInterface
             return $this->wrapResponse(Api::RESULT_FAILURE, $result['ERR']);
         }
     }
+
+    /**
+     * Stop a message - Still not available in this mode
+     *
+     * @param string $apiMsgId ApiMsgId to query
+     *
+     */
+    public function stopMessage($apiMsgId) {}
 }
