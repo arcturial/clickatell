@@ -136,7 +136,7 @@ class Clickatell
      *
      * @param int  $setValue   sslVerification value
      */
-    public function setSSLVerification(int $setValue)
+    public function setSSLVerification($setValue)
     {
         $this->_transport->_sslVerification = $setValue;
     }
