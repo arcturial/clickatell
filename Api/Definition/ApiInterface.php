@@ -50,6 +50,15 @@ interface ApiInterface
     public function getBalance();
 
     /**
+     * API call for "stop message".
+     *
+     * @param string $apiMsgId ApiMsgId to query
+     *
+     * @return mixed
+     */
+    public function stopMessage($apiMsgId);
+
+    /**
      * API call for "queryMsg".
      *
      * @param string $apiMsgId ApiMsgId to query

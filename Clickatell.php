@@ -65,7 +65,7 @@ class Clickatell
      * The transport/api to use for the request
      * @var Clickatell\Api\Api
      */
-    private $_transport;
+    protected $_transport;
 
     /**
      * Clickatell Messenger Instantiation. Creates the Transport/Translate/Request
@@ -83,8 +83,8 @@ class Clickatell
         // Register autoloader
         spl_autoload_register(array($this, '_autoLoad'));
 
+        // Create transport
         $this->_transport = new $transport(new TranslateJson());
-
         $this->_transport->authenticate($username, $password, $apiId);
 
         // Clear all registered events
@@ -101,6 +101,17 @@ class Clickatell
                 Validate::processValidation($method, $args);
             }
         );
+    }
+
+    /**
+     * Setting up SSL verification (turn off on local testing)
+     * Use '0' for turn off and '2' for turn on the SSL verification
+     *
+     * @param int  $setValue   sslVerification value
+     */
+    public function setSSLVerification($setValue)
+    {
+        $this->_transport->_sslVerification = $setValue;
     }
 
     /**
@@ -197,6 +208,7 @@ class Clickatell
      */
     public function __call($name, $arguments)
     {
+        \Log::info("=========================".get_class($this->_transport)."=========================");
         // Get the interface the class uses
         $interfaces = class_implements($this->_transport);
 
@@ -211,7 +223,6 @@ class Clickatell
             throw new ApiException(ApiException::ERR_METHOD_NOT_FOUND);
         }
     }
-
 
     /**
      * Triggers if a clickatell MT callback has been received by the page.

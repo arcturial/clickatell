@@ -26,6 +26,15 @@ This library uses [composer](http://www.getcomposer.org) and can be acquired usi
 }
 ```
 
+Modify app\config\app.php.
+
+```
+'aliases' => array(
+    ...
+    'Clickatell'      => 'Clickatell\Clickatell',
+    'ClickatellRest'  => 'Clickatell\ClickatellRest',
+)
+```
 
 2. Usage
 ------------------
@@ -36,7 +45,15 @@ The default transport is HTTP.
 
 ``` php
 $clickatell = new Clickatell($username, $password, $apiID);
+$response = $clickatell->sendMessage(1111111111, "My Message");
 
+// {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
+```
+
+REST transport uses special authentication with Clickatell API Token.
+
+``` php
+$clickatell = new ClickatellRest($token);
 $response = $clickatell->sendMessage(1111111111, "My Message");
 
 // {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
@@ -47,11 +64,11 @@ The response you get back will be JSON (as indicated above) that will contain tw
 You can specify a different output using the Clickatell constructor or using the setTransport() method.
 
 ``` php
-$clickatell = new Clickatell($username, $password, $apiID, Clickatell::TRANSPORT_XML);
+$clickatell = new Clickatell(Clickatell::TRANSPORT_XML);
 
 // OR
 
-$clickatell = new Clickatell($username, $password, $apiID);
+$clickatell = new Clickatell();
 
 $clickatell->setTransport(new Clickatell\Component\Transport\TransportXml);
 ```
@@ -76,6 +93,8 @@ use Clickatell\Component\Transport\TransportSoap;
 use Clickatell\Component\Transport\TransportXml;
 
 use Clickatell\Component\Transport\TransportSmtp;
+
+use Clickatell\Component\Transport\TransportRest;
 ```
 
 These Transports all support the following functions
@@ -90,6 +109,8 @@ queryMessage($apiMsgId);
 routeCoverage($msisdn);
 
 getMessageCharge($apiMsgId);
+
+stopMessage($apiMsgId); // Still only in REST transport
 ```
 
 ### Bulk Messaging API's
@@ -122,24 +143,26 @@ use Clickatell\Clickatell;
 
 $clickatell = new Clickatell('[username]', '[password]', [api_id], Clickatell::HTTP_API);
 
+// $clickatell = new ClickatellRest('[clickatell_api_token]');
+
 $clickatell->on('request', function($data) {
-	// $data = The parameters passed to the request
+    // $data = The parameters passed to the request
 
     // The data array is passed by reference so you can change
     // any of the values before sending.
 
     // $data['message'] = "My Message Override."
     // $data['extra'] = array("mo" => true);
-	print_r($data);
+    print_r($data);
 });
 
 $clickatell->on('response', function($data) {
-	// $data = The result of the API call.
+    // $data = The result of the API call.
 
-	// This hook can be used to register multiple
-	// listeners that can log to file/db or call another
-	// service.
-	print_r($data);
+    // This hook can be used to register multiple
+    // listeners that can log to file/db or call another
+    // service.
+    print_r($data);
 });
 
 ?>
