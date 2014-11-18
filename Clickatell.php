@@ -62,33 +62,30 @@ class Clickatell
     const SMTP_API = "Clickatell\Api\Smtp";
 
     /**
-     * The REST Transport Interface
-     * @var string
-     */
-    const REST_API = "Clickatell\Api\Rest";
-
-    /**
      * The transport/api to use for the request
      * @var Clickatell\Api\Api
      */
-    private $_transport;
-
+    protected $_transport;
 
     /**
      * Clickatell Messenger Instantiation. Creates the Transport/Translate/Request
      * interfaces required.
      *
+     * @param string $username  API username
+     * @param string $password  API password
+     * @param int    $apiId     API ID (Sub-product ID)
      * @param string $transport Transport protocol to use (defaults to HTTP api)
      *
      * @return boolean
      */
-    public function __construct($transport = self::HTTP_API)
+    public function __construct($username, $password, $apiId, $transport = self::HTTP_API)
     {
         // Register autoloader
         spl_autoload_register(array($this, '_autoLoad'));
 
         // Create transport
         $this->_transport = new $transport(new TranslateJson());
+        $this->_transport->authenticate($username, $password, $apiId);
 
         // Clear all registered events
         Event::clear();
@@ -104,30 +101,6 @@ class Clickatell
                 Validate::processValidation($method, $args);
             }
         );
-    }
-
-    /**
-     * Clickatell Messenger Authentication with user data.
-     *
-     * @param string $username  API username
-     * @param string $password  API password
-     * @param int    $apiId     API ID (Sub-product ID)
-     *
-     * @return boolean
-     */
-    public function authUser($username, $password, $apiId) {
-        $this->_transport->authenticateUser($username, $password, $apiId);
-    }
-
-    /**
-     * Clickatell Messenger Authentication with API token.
-     *
-     * @param string $token API token
-     *
-     * @return boolean
-     */
-    public function authToken($token) {
-        $this->_transport->authenticateByToken($token);
     }
 
     /**
@@ -235,6 +208,7 @@ class Clickatell
      */
     public function __call($name, $arguments)
     {
+        \Log::info("=========================".get_class($this->_transport)."=========================");
         // Get the interface the class uses
         $interfaces = class_implements($this->_transport);
 

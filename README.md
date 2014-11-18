@@ -32,6 +32,7 @@ Modify app\config\app.php.
 'aliases' => array(
     ...
     'Clickatell'      => 'Clickatell\Clickatell',
+    'ClickatellRest'  => 'Clickatell\ClickatellRest',
 )
 ```
 
@@ -43,8 +44,7 @@ The Clickatell library allows you specify several ways to connect to Clickatell.
 The default transport is HTTP.
 
 ``` php
-$clickatell = new Clickatell();
-$clickatell->authUser($username, $password, $apiID)
+$clickatell = new Clickatell($username, $password, $apiID);
 $response = $clickatell->sendMessage(1111111111, "My Message");
 
 // {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
@@ -53,8 +53,7 @@ $response = $clickatell->sendMessage(1111111111, "My Message");
 REST transport uses special authentication with Clickatell API Token.
 
 ``` php
-$clickatell = new Clickatell(Clickatell::REST_API);
-$clickatell->authToken($token)
+$clickatell = new ClickatellRest($token);
 $response = $clickatell->sendMessage(1111111111, "My Message");
 
 // {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
@@ -142,11 +141,9 @@ Example
 
 use Clickatell\Clickatell;
 
-$clickatell = new Clickatell(Clickatell::HTTP_API);
-$clickatell.authUser('[username]', '[password]', [api_id]);
+$clickatell = new Clickatell('[username]', '[password]', [api_id], Clickatell::HTTP_API);
 
-// $clickatell = new Clickatell(Clickatell::REST_API);
-// $clickatell.authToken('[clickatell_api_token]');
+// $clickatell = new ClickatellRest('[clickatell_api_token]');
 
 $clickatell->on('request', function($data) {
     // $data = The parameters passed to the request

@@ -51,7 +51,7 @@ abstract class Api
      * The translater to use when returning the data to the user
      * @var Clickatell\Component\Translate\TranslateInterface
      */
-    private $_translate;
+    protected $_translate;
 
     /**
      * Turn off ssl verification for local testing
@@ -256,7 +256,7 @@ abstract class Api
      *
      * @return boolean
      */
-    public function authenticateUser($user, $password, $apiId)
+    public function authenticate($user, $password, $apiId)
     {
         $this->auth['user'] = $user;
         $this->auth['password'] = $password;
