@@ -54,7 +54,9 @@ abstract class Api
     protected $_translate;
 
     /**
-     * Turn off ssl verification for local testing
+     * Turn on/off ssl verification
+     * 0: turn off verification (e.g. for local testing)
+     * 2: turn on verification
      */
     private $_sslVerification = 2;
 

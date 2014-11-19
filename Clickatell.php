@@ -208,7 +208,6 @@ class Clickatell
      */
     public function __call($name, $arguments)
     {
-        \Log::info("=========================".get_class($this->_transport)."=========================");
         // Get the interface the class uses
         $interfaces = class_implements($this->_transport);
 
