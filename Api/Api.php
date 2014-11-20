@@ -51,7 +51,14 @@ abstract class Api
      * The translater to use when returning the data to the user
      * @var Clickatell\Component\Translate\TranslateInterface
      */
-    private $_translate;
+    protected $_translate;
+
+    /**
+     * Turn on/off ssl verification
+     * 0: turn off verification (e.g. for local testing)
+     * 2: turn on verification
+     */
+    private $_sslVerification = 2;
 
     /**
      * Supported 'extra' parameters
@@ -122,7 +129,7 @@ abstract class Api
      *
      * @return string
      */
-    private function _buildQueryString(array $packet)
+    protected function _buildQueryString(array $packet)
     {
         return http_build_query($packet);
     }
@@ -259,6 +266,23 @@ abstract class Api
 
         return true;
     }
+
+    /**
+     * Authenticates the current API request and stores the auth details.
+     *
+     * @param string $user     Username to auth
+     * @param string $password Password to use
+     * @param int    $apiId    ApiID to call
+     *
+     * @return boolean
+     */
+    public function authenticateByToken($token)
+    {
+        $this->auth['token'] = $token;
+
+        return true;
+    }
+
 
     /**
      * Set the data translater to use. The translater will take the
