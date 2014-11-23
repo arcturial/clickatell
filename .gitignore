@@ -1,4 +1,6 @@
 vendor/
 stage.php
 composer.phar
-composer.lock
+Api/
+Clickatell.php
+ClickatellRest.php

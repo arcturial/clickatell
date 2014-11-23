@@ -17,10 +17,8 @@
         "phpunit/phpunit": "4.2.*"
     },
     "autoload": {
-        "psr-0": {
-            "Clickatell\\": ""
+        "psr-4": {
+            "Clickatell\\": [ "src", "test" ]
         }
-    },
-    "target-dir": "Clickatell/",
-    "minimum-stability": "dev"
+    }
 }
