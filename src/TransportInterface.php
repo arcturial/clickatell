@@ -49,7 +49,7 @@ interface TransportInterface
      *
      * @return mixed
      */
-    //public function stopMessage($apiMsgId);
+    public function stopMessage($apiMsgId);
 
     /**
      * API call for "queryMsg".
@@ -58,7 +58,7 @@ interface TransportInterface
      *
      * @return mixed
      */
-    //public function queryMessage($apiMsgId);
+    public function queryMessage($apiMsgId);
 
     /**
      * API call for "routeCoverage".
@@ -67,7 +67,7 @@ interface TransportInterface
      *
      * @return mixed
      */
-    //public function routeCoverage($msisdn);
+    public function routeCoverage($msisdn);
 
     /**
      * API call for "getMsgCharge".
@@ -76,5 +76,5 @@ interface TransportInterface
      *
      * @return mixed
      */
-    //public function getMessageCharge($apiMsgId);
+    public function getMessageCharge($apiMsgId);
 }
