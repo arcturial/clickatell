@@ -2,5 +2,5 @@ vendor/
 stage.php
 composer.phar
 Api/
-Clickatell.php
-ClickatellRest.php
+/Clickatell.php
+/ClickatellRest.php
