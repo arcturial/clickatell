@@ -8,7 +8,6 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
 {
     public function testCurl()
     {
-        $host = "api.clickatell.com";
         $uri = "http/sendmsg";
         $args = array();
 
@@ -17,7 +16,7 @@ class ClickatellTest extends PHPUnit_Framework_TestCase
         $class = new ReflectionClass($clickatell);
         $method = $class->getMethod('curl');
         $method->setAccessible(true);
-        $return = $method->invokeArgs($clickatell, array($host, $uri, $args, "GET"));
+        $return = $method->invokeArgs($clickatell, array($uri, $args));
 
         $this->assertSame(200, $return['code']);
         $this->assertTrue(strlen($return['body']) > 0);

@@ -29,19 +29,49 @@ use \Exception;
  */
 abstract class Clickatell implements TransportInterface
 {
+    const HTTP_GET  = "GET";
+    const HTTP_POST = "POST";
+
     private $secure = false;
 
-    abstract protected function get($uri, $args);
+    /**
+     * This function serves as the "request" or "invoke" function. This will in turn
+     * call the API or whatever resource is required to complete the task. Each adapter
+     * should overwrite this function with the appropriate logic.
+     *
+     * @param string $uri    The uri (endpoint)
+     * @param array  $args   The arguments
+     * @param string $method The desired HTTP method
+     *
+     * @return array
+     */
+    abstract protected function get($uri, $args, $method = self::HTTP_GET);
 
-    protected function curl($host, $uri, $args, $method = 'GET')
+    /**
+     * Abstract CURL usage. This helps with testing and extendibility
+     * accross multiple API types.
+     *
+     *
+     * @return array
+     */
+    protected function curl($uri, $args, $headers = array(), $method = self::HTTP_GET)
     {
+        // This is the clickatell endpoint. It doesn't really change so
+        // it's safe for us to "hardcode" it here.
+        $host = "api.clickatell.com";
+
         $uri = ltrim($uri, "/");
-        $host = ($this->secure ? 'https' : 'http') . '://' . $host;
+        $uri = ($this->secure ? 'https' : 'http') . '://' . $host . "/" . $uri;
+        $query = http_build_query($args);
+        $method == "GET" && $uri = $uri . "?"  . $query;
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $host . "/" . $uri . "?" . http_build_query($args));
+        curl_setopt($ch, CURLOPT_URL, $uri);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POST, ($method == "POST"));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
