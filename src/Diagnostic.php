@@ -51,6 +51,6 @@ class Diagnostic
      */
     public static function getError($code)
     {
-        return isset(self::$errorCodes[$code]) ? self::$errorCodes[$code] : "";
+        return isset(self::$errorCodes[$code]) ? self::$errorCodes[$code] : "unknown error";
     }
 }
