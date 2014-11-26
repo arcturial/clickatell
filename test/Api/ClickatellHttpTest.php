@@ -1,6 +1,7 @@
 <?php
 namespace Clickatell\Api;
 
+use Clickatell\Decoder;
 use \PHPUnit_Framework_TestCase;
 use \ReflectionClass;
 
@@ -22,7 +23,7 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
 
         $clickatell->expects($this->once())
             ->method('curl')
-            ->with($uri, $args);
+            ->with($uri, http_build_query($args));
 
         $class = new ReflectionClass($clickatell);
         $method = $class->getMethod('get');
@@ -44,34 +45,18 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $response = array(
-            'body' => 'response body'
-        );
+        $response = new Decoder('ID: 123456789 To: 12345', 200);
 
         $clickatell->expects($this->once())
             ->method('get')
             ->with('http/sendmsg', $default)
             ->will($this->returnValue($response));
 
-        $responseEntry = array(
-            array(
-                'ID'    => '123456789',
-                'To'    => '12345',
-                'code'  => '103',
-                'error' => 'Error message'
-            )
-        );
-
-        $clickatell->expects($this->once())
-            ->method('unwrapLegacy')
-            ->with($response['body'], true)
-            ->will($this->returnValue($responseEntry));
-
         $entries = $clickatell->sendMessage(array(12345, 123456), "message", array('mo' => false));
 
-        $this->assertSame($responseEntry[0]['ID'], $entries[0]->id);
-        $this->assertSame($responseEntry[0]['To'], $entries[0]->to);
-        $this->assertSame($responseEntry[0]['code'], $entries[0]->errorCode);
-        $this->assertSame($responseEntry[0]['error'], $entries[0]->error);
+        $this->assertSame("123456789", $entries[0]->getApiMsgId());
+        $this->assertEquals(12345, $entries[0]->getDestination());
+        $this->assertSame(false, $entries[0]->getErrorCode());
+        $this->assertSame(false, $entries[0]->getError());
     }
 }

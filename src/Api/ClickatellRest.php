@@ -14,7 +14,7 @@
 namespace Clickatell\Api;
 
 use Clickatell\Clickatell;
-use \stdClass;
+use Clickatell\Response\SendMessage;
 use \Exception;
 
 /**
@@ -48,10 +48,10 @@ class ClickatellRest extends Clickatell
     private function getHeaders()
     {
         return array(
-            "Authorization" => "Bearer " . $this->token,
-            "Content-Type"  => "application/json",
-            "X-Version"     => "1",
-            "Accept"        => "application/json"
+            "Authorization: Bearer " . $this->token,
+            "Content-Type: application/json",
+            "X-Version: 1",
+            "Accept: application/json"
         );
     }
 
@@ -60,9 +60,17 @@ class ClickatellRest extends Clickatell
      */
     protected function get($uri, $args, $method = self::HTTP_GET)
     {
-        $response = $this->curl($uri, $args, $this->getHeaders(), $method);
-        $decoded = json_decode($response, true);
+        $data = json_encode($args);
+        $response = $this->curl($uri, $data, $this->getHeaders(), $method);
+        $decoded = $response->decodeRest();
 
+        // Check if the decoded response contains a "global error". If the entire
+        // packet failed there is no need to even try handling it further.
+        if (isset($decoded['error'])) {
+            // The assumption here is that every response will behave the same and when it's an
+            // error it will always contain a description and code field.
+            throw new Exception($decoded['error']['description'], $decoded['error']['code']);
+        }
 
         return $decoded['data'];
     }
@@ -72,29 +80,30 @@ class ClickatellRest extends Clickatell
      */
     public function sendMessage($to, $message, $extra = array())
     {
-        // Merge parameter sets and include some
-        // default parameters.
-        // TODO abstrac this, it's shared between HTTP and REST
-        $args = array_merge(
-            array(
-                'to'        => implode(",", (array) $to),
-                'text'      => $message,
-                'mo'        => true,
-                'callback'  => true
-            ),
-            $extra
-        );
+        $extra['to'] = (array) $to;
+        $extra['text'] = $message;
+        $args = $this->getSendDefaults($extra);
+
+        // The "to" field only accepts strings as numbers. We will take all the
+        // values and map them into strings.
+        $args['to'] = array_map(function ($value) {
+            return (string) $value;
+        }, $args['to']);
 
         $response = $this->get('rest/message', $args, self::HTTP_POST);
         $return = array();
 
+        // According to the documentation, we can pretty much assume that
+        // a response from "rest/message" will contain a "message" key with an
+        // array of messages in it.
         foreach ($response['message'] as $entry) {
-            $obj = new stdClass;
-            $obj->id = (isset($entry['apiMessageId'])) ? $entry['apiMessageId'] : false;
-            $obj->to = (isset($entry['to'])) ? $entry['to'] : $args['to'];
-            $obj->errorCode = (isset($entry['code'])) ? $entry['code'] : false;
-            $obj->error = (isset($entry['error'])) ? $entry['error'] : false;
-            $return[] = $obj;
+
+            $return[] = new SendMessage(
+                (isset($entry['apiMessageId'])) ? $entry['apiMessageId'] : false,
+                (isset($entry['to'])) ? $entry['to'] : $args['to'],
+                (isset($entry['error'])) ? $entry['error']['description'] : false,
+                (isset($entry['error'])) ? $entry['error']['code'] : false
+            );
         }
 
         return $return;

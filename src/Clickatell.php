@@ -48,13 +48,36 @@ abstract class Clickatell implements TransportInterface
     abstract protected function get($uri, $args, $method = self::HTTP_GET);
 
     /**
-     * Abstract CURL usage. This helps with testing and extendibility
-     * accross multiple API types.
+     * Merge the defaults with the requested parameters. The sendMessage API
+     * call has many parameters. This call populates some of the defaults for us.
      *
+     * @param array $parameters The parameters to merge in
      *
      * @return array
      */
-    protected function curl($uri, $args, $headers = array(), $method = self::HTTP_GET)
+    protected function getSendDefaults($parameters)
+    {
+        return array_merge(
+            array(
+                'mo'        => 1,
+                'callback'  => 7
+            ),
+            $parameters
+        );
+    }
+
+    /**
+     * Abstract CURL usage. This helps with testing and extendibility
+     * accross multiple API types.
+     *
+     * @param string $uri     The endpoint
+     * @param strong $data    POST data or query string
+     * @param array  $headers Header array
+     * @param string $method  HTTP method
+     *
+     * @return Decoder
+     */
+    protected function curl($uri, $data, $headers = array(), $method = self::HTTP_GET)
     {
         // This is the clickatell endpoint. It doesn't really change so
         // it's safe for us to "hardcode" it here.
@@ -62,8 +85,7 @@ abstract class Clickatell implements TransportInterface
 
         $uri = ltrim($uri, "/");
         $uri = ($this->secure ? 'https' : 'http') . '://' . $host . "/" . $uri;
-        $query = http_build_query($args);
-        $method == "GET" && $uri = $uri . "?"  . $query;
+        $method == "GET" && $uri = $uri . "?"  . $data;
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $uri);
@@ -71,54 +93,12 @@ abstract class Clickatell implements TransportInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POST, ($method == "POST"));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        return array('body' => $result, 'code' => $httpCode);
-    }
-
-    /**
-     * This method takes a CURL response and tries to unwrap it into
-     * a usable object. Since the API is sometimes inconsistent we use
-     * this functions to hide all the problems from the developer.
-     *
-     * @param string  $body      The content body
-     * @param boolean $multi     Do you expect multiple results?
-     * @param boolean $exception Do you want to throw an exception on failure?
-     *
-     * @return array
-     */
-    protected function unwrapLegacy($body, $multi = false, $exception = false)
-    {
-        $lines = explode("\n", trim($body, "\n"));
-        $result = array();
-
-        foreach ($lines as $line) {
-            preg_match_all("/([A-Za-z]+):((.(?![A-Za-z]+:))*)/", $line, $matches);
-
-            $row = array();
-            foreach ($matches[1] as $index => $status) {
-                $row[$status] = trim($matches[2][$index]);
-            }
-
-            if (isset($row['ERR'])) {
-                $error = explode(",", $row['ERR']);
-                $row['error'] = true;
-                $row['code'] = $error[0];
-                $row['error'] = trim($error[1]);
-                unset($row['ERR']);
-
-                if ($exception) {
-                    throw new Exception($row['error'], $row['code']);
-                }
-            }
-
-            $result[] = $row;
-        }
-
-        return $multi ? $result : current($result);
+        return new Decoder($result, $httpCode);
     }
 
     /**

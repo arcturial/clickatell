@@ -14,6 +14,7 @@
 namespace Clickatell\Api;
 
 use Clickatell\Clickatell;
+use Clickatell\Response\SendMessage;
 use \stdClass;
 use \Exception;
 
@@ -59,7 +60,8 @@ class ClickatellHttp extends Clickatell
             )
         );
 
-        return $this->curl($uri, $args, array(), $method);
+        $query = http_build_query($args);
+        return $this->curl($uri, $query, array(), $method);
     }
 
     /**
@@ -67,30 +69,23 @@ class ClickatellHttp extends Clickatell
      */
     public function sendMessage($to, $message, $extra = array())
     {
-        // Merge parameter sets and include some
-        // default parameters.
-        $args = array_merge(
-            array(
-                'to'        => implode(",", (array) $to),
-                'text'      => $message,
-                'mo'        => true,
-                'callback'  => true
-            ),
-            $extra
-        );
+        $extra['to'] = implode(",", (array) $to);
+        $extra['text'] = $message;
+        $args = $this->getSendDefaults($extra);
 
         $response = $this->get('http/sendmsg', $args);
         $return = array();
 
         // We won't throw any exceptions if an error occurs since we could have
         // multiple messages in the packet and not all of them might have failed.
-        foreach ($this->unwrapLegacy($response['body'], true) as $entry) {
-            $obj = new stdClass;
-            $obj->id = (isset($entry['ID'])) ? $entry['ID'] : false;
-            $obj->to = (isset($entry['To'])) ? $entry['To'] : $args['to'];
-            $obj->errorCode = (isset($entry['code'])) ? $entry['code'] : false;
-            $obj->error = (isset($entry['error'])) ? $entry['error'] : false;
-            $return[] = $obj;
+        foreach ($response->unwrapLegacy(true) as $entry) {
+
+            $return[] = new SendMessage(
+                (isset($entry['ID'])) ? $entry['ID'] : false,
+                (isset($entry['To'])) ? $entry['To'] : $args['to'],
+                (isset($entry['error'])) ? $entry['error'] : false,
+                (isset($entry['code'])) ? $entry['code'] : false
+            );
         }
 
         return $return;
@@ -102,7 +97,7 @@ class ClickatellHttp extends Clickatell
     public function getBalance()
     {
         $response = $this->get('http/getbalance', array());
-        $result = $this->unwrapLegacy($response['body'], false, true);
+        $result = $response->unwrapLegacy(false);
 
         $obj = new stdClass;
         $obj->balance = (float) $result['Credit'];
@@ -127,7 +122,7 @@ class ClickatellHttp extends Clickatell
         );
 
         $response = $this->get('utils/routeCoverage', $args);
-        $result = $this->unwrapLegacy($response['body'], false, true);
+        $result = $response->unwrapLegacy(false);
 
         $obj = new stdClass;
         $obj->apiMsgId = (string) $result['OK'];
@@ -145,7 +140,7 @@ class ClickatellHttp extends Clickatell
         );
 
         $response = $this->get('http/getmsgcharge', $args);
-        $result = $this->unwrapLegacy($response['body'], false, true);
+        $result = $response->unwrapLegacy(false);
 
         $obj = new stdClass;
         $obj->status = $result['status'];
