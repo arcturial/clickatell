@@ -14,9 +14,7 @@
 namespace Clickatell\Api;
 
 use Clickatell\Clickatell;
-use Clickatell\Response\SendMessage;
-use \stdClass;
-use \Exception;
+use Clickatell\Diagnostic;
 
 /**
  * The HTTP API usage class.
@@ -61,7 +59,7 @@ class ClickatellHttp extends Clickatell
         );
 
         $query = http_build_query($args);
-        return $this->curl($uri, $query, array(), $method);
+        return $this->curl($uri, $query, array(), $method)->unwrapLegacy();
     }
 
     /**
@@ -74,17 +72,18 @@ class ClickatellHttp extends Clickatell
         $args = $this->getSendDefaults($extra);
 
         $response = $this->get('http/sendmsg', $args);
+        !is_int(key($response)) && $response = array($response);
         $return = array();
 
         // We won't throw any exceptions if an error occurs since we could have
         // multiple messages in the packet and not all of them might have failed.
-        foreach ($response->unwrapLegacy(true) as $entry) {
+        foreach ($response as $entry) {
 
-            $return[] = new SendMessage(
-                (isset($entry['ID'])) ? $entry['ID'] : false,
-                (isset($entry['To'])) ? $entry['To'] : $args['to'],
-                (isset($entry['error'])) ? $entry['error'] : false,
-                (isset($entry['code'])) ? $entry['code'] : false
+            $return[] = (object) array(
+                'id'            => (isset($entry['ID'])) ? $entry['ID'] : false,
+                'destination'   => (isset($entry['To'])) ? $entry['To'] : $args['to'],
+                'error'         => (isset($entry['error'])) ? $entry['error'] : false,
+                'errorCode'     => (isset($entry['code'])) ? $entry['code'] : false
             );
         }
 
@@ -97,11 +96,10 @@ class ClickatellHttp extends Clickatell
     public function getBalance()
     {
         $response = $this->get('http/getbalance', array());
-        $result = $response->unwrapLegacy(false);
 
-        $obj = new stdClass;
-        $obj->balance = (float) $result['Credit'];
-        return $obj;
+        return (object) array(
+            'balance' => (float) $response['Credit']
+        );
     }
 
     /**
@@ -117,17 +115,24 @@ class ClickatellHttp extends Clickatell
      */
     public function routeCoverage($msisdn)
     {
-        $args = array(
-            'msisdn' => $msisdn
-        );
+        try {
 
-        $response = $this->get('utils/routeCoverage', $args);
-        $result = $response->unwrapLegacy(false);
+            $response = $this->get('utils/routeCoverage', array('msisdn' => $msisdn));
 
-        $obj = new stdClass;
-        $obj->apiMsgId = (string) $result['OK'];
-        $obj->charge = $result['Charge'];
-        return $obj;
+            return (object) array(
+                'routable'      => true,
+                'destination'   => $msisdn,
+                'charge'        => $response['Charge']
+            );
+
+        } catch (Exception $exception) {
+
+            return (object) array(
+                'routable'      => false,
+                'destination'   => $msisdn,
+                'charge'        => 0
+            );
+        }
     }
 
     /**
@@ -135,18 +140,14 @@ class ClickatellHttp extends Clickatell
      */
     public function getMessageCharge($apiMsgId)
     {
-        $args = array(
-            'apiMsgId' => $apiMsgId
+        $response = $this->get('http/getmsgcharge', array('apimsgid' => $apiMsgId));
+
+        return (object) array(
+            'id'            => $apiMsgId,
+            'status'        => $response['status'],
+            'description'   => Diagnostic::getStatus($response['status']),
+            'charge'        => (float) $response['charge']
         );
-
-        $response = $this->get('http/getmsgcharge', $args);
-        $result = $response->unwrapLegacy(false);
-
-        $obj = new stdClass;
-        $obj->status = $result['status'];
-        $obj->description = Diagnostic::getError($result['status']);
-        $obj->charge = (float) $result['charge'];
-        return $obj;
     }
 
     /**
@@ -154,6 +155,12 @@ class ClickatellHttp extends Clickatell
      */
     public function stopMessage($apiMsgId)
     {
-        throw new Exception('Stop message functionality not implemented yet.');
+        $response = $this->get('http/delmsg', array('apimsgid' => $apiMsgId));
+
+        return (object) array(
+            'id'            => $response['ID'],
+            'status'        => $response['Status'],
+            'description'   => Diagnostic::getStatus($response['Status']),
+        );
     }
 }

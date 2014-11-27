@@ -27,7 +27,7 @@ class Diagnostic
     /**
      * @var array
      */
-    private static $errorCodes = array(
+    private static $statusCodes = array(
         "001" => "The message ID is incorrect or reporting is delayed.",
         "002" => "The message could not be delivered and has been queued for attempted redelivery.",
         "003" => "Delivered to the upstream gateway or network (delivered to the recipient).",
@@ -49,8 +49,8 @@ class Diagnostic
      *
      * @return string
      */
-    public static function getError($code)
+    public static function getStatus($code)
     {
-        return isset(self::$errorCodes[$code]) ? self::$errorCodes[$code] : "unknown error";
+        return isset(self::$statusCodes[$code]) ? self::$statusCodes[$code] : "unknown error";
     }
 }

@@ -64,7 +64,17 @@ class Decoder
      */
     public function decodeRest()
     {
-        return json_decode($this->body, true);
+        $decoded = json_decode($this->body, true);
+
+        // Check if the decoded response contains a "global error". If the entire
+        // packet failed there is no need to even try handling it further.
+        if (isset($decoded['error'])) {
+            // The assumption here is that every response will behave the same and when it's an
+            // error it will always contain a description and code field.
+            throw new Exception($decoded['error']['description'], $decoded['error']['code']);
+        }
+
+        return $decoded['data'];
     }
 
     /**
@@ -72,11 +82,9 @@ class Decoder
      * a usable object. Since the API is sometimes inconsistent we use
      * this functions to hide all the problems from the developer.
      *
-     * @param boolean $multi Do you expect multiple results?
-     *
      * @return array
      */
-    public function unwrapLegacy($multi = false)
+    public function unwrapLegacy()
     {
         $lines = explode("\n", trim($this->body, "\n"));
         $result = array();
@@ -92,14 +100,20 @@ class Decoder
             if (isset($row['ERR'])) {
                 $error = explode(",", $row['ERR']);
                 $row['error'] = true;
-                $row['code'] = $error[0];
-                $row['error'] = trim($error[1]);
+                $row['code'] = count($error) == 2 ? $error[0] : 0;
+                $row['error'] = (isset($error[1])) ? trim($error[1]) : $error[0];
                 unset($row['ERR']);
+
+                // If this response is a single row response, then we will throw
+                // an exception to alert the user of any failures.
+                if (count($lines) == 1) {
+                    throw new Exception($row['error'], $row['code']);
+                }
             }
 
             $result[] = $row;
         }
 
-        return $multi ? $result : current($result);
+        return count($result) > 1 ? $result : current($result);
     }
 }

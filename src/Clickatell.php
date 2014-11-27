@@ -29,8 +29,9 @@ use \Exception;
  */
 abstract class Clickatell implements TransportInterface
 {
-    const HTTP_GET  = "GET";
-    const HTTP_POST = "POST";
+    const HTTP_GET      = "GET";
+    const HTTP_POST     = "POST";
+    const HTTP_DELETE   = "DELETE";
 
     private $secure = false;
 
@@ -92,8 +93,7 @@ abstract class Clickatell implements TransportInterface
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, ($method == "POST"));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        ($method == "POST") && curl_setopt($ch, CURLOPT_POST, 1) && curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

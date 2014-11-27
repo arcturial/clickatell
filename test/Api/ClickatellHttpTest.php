@@ -16,6 +16,14 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
             'api_id'    => '123456'
         );
 
+        $decoder = $this->getMockBuilder("Clickatell\Decoder")
+            ->setMethods(array("unwrapLegacy"))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $decoder->expects($this->once())
+            ->method('unwrapLegacy');
+
         $clickatell = $this->getMockBuilder('Clickatell\Api\ClickatellHttp')
             ->setMethods(array('curl'))
             ->setConstructorArgs(array('username', 'password', '123456'))
@@ -23,7 +31,8 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
 
         $clickatell->expects($this->once())
             ->method('curl')
-            ->with($uri, http_build_query($args));
+            ->with($uri, http_build_query($args))
+            ->will($this->returnValue($decoder));
 
         $class = new ReflectionClass($clickatell);
         $method = $class->getMethod('get');
@@ -50,13 +59,13 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
         $clickatell->expects($this->once())
             ->method('get')
             ->with('http/sendmsg', $default)
-            ->will($this->returnValue($response));
+            ->will($this->returnValue($response->unwrapLegacy()));
 
         $entries = $clickatell->sendMessage(array(12345, 123456), "message", array('mo' => false));
 
-        $this->assertSame("123456789", $entries[0]->getApiMsgId());
-        $this->assertEquals(12345, $entries[0]->getDestination());
-        $this->assertSame(false, $entries[0]->getErrorCode());
-        $this->assertSame(false, $entries[0]->getError());
+        $this->assertSame("123456789", $entries[0]->id);
+        $this->assertEquals(12345, $entries[0]->destination);
+        $this->assertSame(false, $entries[0]->errorCode);
+        $this->assertSame(false, $entries[0]->error);
     }
 }

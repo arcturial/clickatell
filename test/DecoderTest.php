@@ -11,8 +11,7 @@ class DecoderTest extends PHPUnit_Framework_TestCase
         $body = "ERR: 301, Some Error";
         $clickatell = new Decoder($body, 200);
 
+        $this->setExpectedException('Exception', 'Some Error', 301);
         $return = $clickatell->unwrapLegacy();
-        $this->assertSame('Some Error', $return['error']);
-        $this->assertEquals(301, $return['code']);
     }
 }

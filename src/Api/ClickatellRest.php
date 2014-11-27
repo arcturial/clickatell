@@ -14,8 +14,7 @@
 namespace Clickatell\Api;
 
 use Clickatell\Clickatell;
-use Clickatell\Response\SendMessage;
-use \Exception;
+use Clickatell\Diagnostic;
 
 /**
  * The REST API usage class.
@@ -62,17 +61,7 @@ class ClickatellRest extends Clickatell
     {
         $data = json_encode($args);
         $response = $this->curl($uri, $data, $this->getHeaders(), $method);
-        $decoded = $response->decodeRest();
-
-        // Check if the decoded response contains a "global error". If the entire
-        // packet failed there is no need to even try handling it further.
-        if (isset($decoded['error'])) {
-            // The assumption here is that every response will behave the same and when it's an
-            // error it will always contain a description and code field.
-            throw new Exception($decoded['error']['description'], $decoded['error']['code']);
-        }
-
-        return $decoded['data'];
+        return $response->decodeRest();
     }
 
     /**
@@ -98,11 +87,11 @@ class ClickatellRest extends Clickatell
         // array of messages in it.
         foreach ($response['message'] as $entry) {
 
-            $return[] = new SendMessage(
-                (isset($entry['apiMessageId'])) ? $entry['apiMessageId'] : false,
-                (isset($entry['to'])) ? $entry['to'] : $args['to'],
-                (isset($entry['error'])) ? $entry['error']['description'] : false,
-                (isset($entry['error'])) ? $entry['error']['code'] : false
+            $return[] = (object) array(
+                'id'            => (isset($entry['apiMessageId'])) ? $entry['apiMessageId'] : false,
+                'destination'   => (isset($entry['to'])) ? $entry['to'] : $args['to'],
+                'error'         => (isset($entry['error'])) ? $entry['error']['description'] : false,
+                'errorCode'     => (isset($entry['code'])) ? $entry['code']['code'] : false
             );
         }
 
@@ -114,7 +103,11 @@ class ClickatellRest extends Clickatell
      */
     public function getBalance()
     {
-        throw new Exception('Get balance functionality not implemented yet.');
+        $response = $this->get('rest/account/balance', array());
+
+        return (object) array(
+            'balance' => (float) $response['balance']
+        );
     }
 
     /**
@@ -122,7 +115,7 @@ class ClickatellRest extends Clickatell
      */
     public function queryMessage($apiMsgId)
     {
-        throw new Exception('Query message functionality not implemented yet.');
+        return $this->getMessageCharge($apiMsgId);
     }
 
     /**
@@ -130,7 +123,13 @@ class ClickatellRest extends Clickatell
      */
     public function routeCoverage($msisdn)
     {
-        throw new Exception('Route coverage functionality not implemented yet.');
+        $response = $this->get('rest/coverage/' . $msisdn, array());
+
+        return (object) array(
+            'routable'      => $response['routable'],
+            'destination'   => $response['destination'],
+            'charge'        => (float) $response['minimumCharge']
+        );
     }
 
     /**
@@ -138,7 +137,14 @@ class ClickatellRest extends Clickatell
      */
     public function getMessageCharge($apiMsgId)
     {
-        throw new Exception('Get message charge functionality not implemented yet.');
+        $response = $this->get('rest/message/' . $apiMsgId, array());
+
+        return (object) array(
+            'id'            => $response['apiMessageId'],
+            'status'        => $response['messageStatus'],
+            'description'   => Diagnostic::getStatus($response['messageStatus']),
+            'charge'        => (float) $response['charge']
+        );
     }
 
     /**
@@ -146,6 +152,12 @@ class ClickatellRest extends Clickatell
      */
     public function stopMessage($apiMsgId)
     {
-        throw new Exception('Stop message functionality not implemented yet.');
+        $response = $this->get('rest/message/' . $apiMsgId, array(), self::HTTP_DELETE);
+
+        return (object) array(
+            'id'            => $response['apiMessageId'],
+            'status'        => $response['messageStatus'],
+            'description'   => Diagnostic::getStatus($response['messageStatus']),
+        );
     }
 }
