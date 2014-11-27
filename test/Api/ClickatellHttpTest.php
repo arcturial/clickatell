@@ -50,7 +50,7 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
         );
 
         $clickatell = $this->getMockBuilder('Clickatell\Api\ClickatellHttp')
-            ->setMethods(array('unwrapLegacy', 'get'))
+            ->setMethods(array('get'))
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -67,5 +67,88 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(12345, $entries[0]->destination);
         $this->assertSame(false, $entries[0]->errorCode);
         $this->assertSame(false, $entries[0]->error);
+    }
+
+    public function testGetBalance()
+    {
+        $return = array(
+            'Credit' => 0.5
+        );
+
+        $clickatell = $this->getMockBuilder('Clickatell\Api\ClickatellHttp')
+            ->setMethods(array('get'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clickatell->expects($this->once())
+            ->method('get')
+            ->with('http/getbalance', array())
+            ->will($this->returnValue($return));
+
+        $balance = $clickatell->getBalance();
+        $this->assertSame($return['Credit'], $balance->balance);
+    }
+
+    public function testQueryMessage()
+    {
+        $clickatell = $this->getMockBuilder('Clickatell\Api\ClickatellHttp')
+            ->setMethods(array('getMessageCharge'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clickatell->expects($this->once())
+            ->method('getMessageCharge')
+            ->with("12345");
+
+        $clickatell->queryMessage("12345");
+    }
+
+    public function testGetMessageCharge()
+    {
+        $id = "12345";
+        $return = array(
+            'status' => "003",
+            'charge' => 1.0
+        );
+
+        $clickatell = $this->getMockBuilder('Clickatell\Api\ClickatellHttp')
+            ->setMethods(array('get'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clickatell->expects($this->once())
+            ->method('get')
+            ->with('http/getmsgcharge', array('apimsgid' => $id))
+            ->will($this->returnValue($return));
+
+        $response = $clickatell->getMessageCharge($id);
+
+        $this->assertSame($id, $response->id);
+        $this->assertSame($return['status'], $response->status);
+        $this->assertSame($return['charge'], $response->charge);
+    }
+
+    public function testStopMessage()
+    {
+        $id = "12345";
+        $return = array(
+            "Status" => "003",
+            "ID" => $id
+        );
+
+        $clickatell = $this->getMockBuilder('Clickatell\Api\ClickatellHttp')
+            ->setMethods(array('get'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $clickatell->expects($this->once())
+            ->method('get')
+            ->with('http/delmsg', array('apimsgid' => $id))
+            ->will($this->returnValue($return));
+
+        $response = $clickatell->stopMessage($id);
+
+        $this->assertSame($id, $response->id);
+        $this->assertSame($return['Status'], $response->status);
     }
 }
