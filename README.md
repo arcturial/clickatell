@@ -5,15 +5,6 @@ Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?b
 
 This library allows easy access to connecting the [Clickatell's](http://www.clickatell.com) different messenging API's.
 
-### Table of Contents
-* Installation
-* Usage
-* Supported API calls
-* Events
-* Dealing with extra parameters in sendMessage
-* Callbacks
-
-
 1. Installation
 ------------------
 
