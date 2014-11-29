@@ -1,7 +1,7 @@
 Clickatell SMS Messenger Library
 ================================
 
-Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
+Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=refactor)](http://travis-ci.org/arcturial/clickatell)
 
 This library allows easy access to connecting the [Clickatell's](http://www.clickatell.com) different messenging API's.
 
@@ -26,159 +26,131 @@ This library uses [composer](http://www.getcomposer.org) and can be acquired usi
 }
 ```
 
-Modify app\config\app.php.
-
-```
-'aliases' => array(
-    ...
-    'Clickatell'      => 'Clickatell\Clickatell',
-    'ClickatellRest'  => 'Clickatell\ClickatellRest',
-)
-```
-
 2. Usage
 ------------------
 
-The Clickatell library allows you specify several ways to connect to Clickatell. The current ones supported are HTTP and XML. These connections are called "Transports".
+The library currently supports the `ClickatellHttp` and `ClickatellRest` adapters.
 
-The default transport is HTTP.
+### HTTP API
 
 ``` php
-$clickatell = new Clickatell($username, $password, $apiID);
-$response = $clickatell->sendMessage(1111111111, "My Message");
+use Clickatell\Api\ClickatellHttp;
 
-// {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
+$clickatell = new ClickatellHttp($username, $password, $apiID);
+$response = $clickatell->sendMessage(array(1111111111), "My Message");
+
+foreach ($response as $message) {
+    echo $message->id;
+
+    // Message response fields:
+    // $message->id
+    // $message->destination
+    // $message->error
+    // $message->errorCode
+}
+
 ```
 
-REST transport uses special authentication with Clickatell API Token.
+### REST API
 
 ``` php
+use Clickatell\Api\ClickatellRest;
+
 $clickatell = new ClickatellRest($token);
-$response = $clickatell->sendMessage(1111111111, "My Message");
+$response = $clickatell->sendMessage(array(1111111111), "My Message");
 
-// {"result":{"status":"success|false","response":[{"apiMsgId":"string|false","to":"xxxxxxxxxxx","error":"string|false"}]}}
+foreach ($response as $message) {
+    echo $message->id;
+
+    // Message response fields:
+    // $message->id
+    // $message->destination
+    // $message->error
+    // $message->errorCode
+}
+
 ```
 
-The response you get back will be JSON (as indicated above) that will contain two keys (status, response). The 'response' key will be an array of messages and their message ID's (even if you just specified one number). The response for sending messages will always be an array so that consistency between different packets can be maintained.
+### Sending to multiple numbers
 
-You can specify a different output using the Clickatell constructor or using the setTransport() method.
-
-``` php
-$clickatell = new Clickatell(Clickatell::TRANSPORT_XML);
-
-// OR
-
-$clickatell = new Clickatell();
-
-$clickatell->setTransport(new Clickatell\Component\Transport\TransportXml);
-```
-
-NOTE: The library uses name spaces, and the Clickatell messenger is located at `Clickatell\Clickatell`
+The `sendMessage` call `to` parameter can take an array of numbers. If you specify only a single number like `$clickatell->sendMessage(1111111111, "Message")` the library will automatically convert it to an array for your convenience.
 
 3. Supported API calls
 ------------------
 
-Clickatell has a couple of different API's that each support a subset of functions. We are going to refer to them as
-Messaging and Bulk Messaging API's for this document.
-
-### Messaging API's
-
-The following are all messaging API's.
+The available calls are defined in the `Clickatell\TransportInterface` interface.
 
 ``` php
-use Clickatell\Component\Transport\TransportHttp;
 
-use Clickatell\Component\Transport\TransportSoap;
+public function sendMessage($to, $message, $extra = array());
 
-use Clickatell\Component\Transport\TransportXml;
+public function getBalance();
 
-use Clickatell\Component\Transport\TransportSmtp;
+public function stopMessage($apiMsgId);
 
-use Clickatell\Component\Transport\TransportRest;
-```
+public function queryMessage($apiMsgId);
 
-These Transports all support the following functions
+public function routeCoverage($msisdn);
 
-``` php
-sendMessage(array $to, string $message, $from = "", $callback = true, $extra = array());
+public function getMessageCharge($apiMsgId);
 
-getBalance();
-
-queryMessage($apiMsgId);
-
-routeCoverage($msisdn);
-
-getMessageCharge($apiMsgId);
-
-stopMessage($apiMsgId); // Still only in REST transport
-```
-
-### Bulk Messaging API's
-
-The following are bulk messaging API's. The have only a limited number of functions and are more suited for bulk messaging. Since they aren't processed in real time, these Transports do not
-return the same results as the normal messaging API's.
-
-``` php
-use Clickatell\Component\Transport\TransportSMTP;
-```
-
-These Transports all support the following functions
-
-``` php
-sendMessage(array $to, string $message, $from = "", $callback = true, $extra = array());
 ```
 
 
 4. Events
 ---------------
 
-This library provides a couple of events to extend the ability of the API's. Current support events are `request` and `response`.
+The library comes with a `ClickatellEvent` class which is a wrapper for any of the other transports. This class
+can assist you with debugging or logging API interactions.
 
-Example
+This class uses the [Proxy Pattern](http://en.wikipedia.org/wiki/Proxy_pattern).
 
 ``` php
 <?php
 
-use Clickatell\Clickatell;
+use Clickatell\Api\ClickatellHttp;
+use Clickatell\ClickatellEvent;
+use Clickatell\Event;
 
-$clickatell = new Clickatell('[username]', '[password]', [api_id], Clickatell::HTTP_API);
+$clickatell = new ClickatellHttp($username, $password, $apiID);
+$event = new ClickatellEvent($clickatell);
 
-// $clickatell = new ClickatellRest('[clickatell_api_token]');
+$event->onRequest(function ($event, $args) {
 
-$clickatell->on('request', function($data) {
-    // $data = The parameters passed to the request
+    var_dump($event);
+    var_dump($args->to);
+    var_dump($args->message);
+    var_dump($args->extra);
 
-    // The data array is passed by reference so you can change
-    // any of the values before sending.
-
-    // $data['message'] = "My Message Override."
-    // $data['extra'] = array("mo" => true);
-    print_r($data);
+    // The parameters in the event object depend on the type of event.
+    // The event constants are available in the Clickatell\Event class.
 });
 
-$clickatell->on('response', function($data) {
-    // $data = The result of the API call.
+$event->onResponse(function ($event, $obj) {
 
-    // This hook can be used to register multiple
-    // listeners that can log to file/db or call another
-    // service.
-    print_r($data);
+    var_dump($event);
+    var_dump($obj);
+
+    // The $obj variable is the same as the response you would get back. So
+    // in the case of sendMessage it will be an array of message responses.
 });
+
+$event->sendMessage(array(1111111111), "My Message");
 
 ?>
 ```
 
-5. Dealing with unsupported parameters
+5. Dealing with extra parameters in sendMessage
 --------------------------------------
 
-Some parameters are not supported by default, but can still be passed to the individual
-
+For usability purposes the `sendMessage` call focuses on the recipients and the content. In order to specify and of the additional parameters defined
+in the [Clickatell document](http://www.clickatell.com), you can use the `extra` parameter and pass them as an array.
 
 
 6. Callbacks
 ---------------
 
-You can listen to clickatell callbacks by using the `parseCallback();` function. It's a helper function
+You can listen to clickatell callbacks by using the `Callback::parseCallback();` function. It's a helper function
 to make sure the required parameters are including in the `$_GET` array.
 
 Parameters: apiMsgId, cliMsgId, to, timestamp, from, status, charge
@@ -186,15 +158,11 @@ Parameters: apiMsgId, cliMsgId, to, timestamp, from, status, charge
 Example
 
 ``` php
-<?php
+use Clickatell\Callback;
 
-use Clickatell\Clickatell;
-
-
-Clickatell::parseCallback(function ($values) {
-
+Callback::parseCallback(function ($values) {
     // var_dump($values);
-
+    // Contains: apiMsgId, cliMsgId, to, timestamp, from, status, charge
 });
 
 ?>

@@ -37,7 +37,7 @@ interface TransportInterface
      * @param string  $message  Message
      * @param array   $extra    Extra parameters (based on Clickatell documents)
      *
-     * @return objcet
+     * @return array
      */
     public function sendMessage($to, $message, $extra = array());
 
