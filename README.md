@@ -10,6 +10,7 @@ This library allows easy access to connecting the [Clickatell's](http://www.clic
 * Usage
 * Supported API calls
 * Events
+* Dealing with extra parameters in sendMessage
 * Callbacks
 
 
