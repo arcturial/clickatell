@@ -15,6 +15,7 @@ namespace Clickatell\Api;
 
 use Clickatell\Clickatell;
 use Clickatell\Diagnostic;
+use \Exception;
 
 /**
  * The HTTP API usage class.
@@ -71,7 +72,16 @@ class ClickatellHttp extends Clickatell
         $extra['text'] = $message;
         $args = $this->getSendDefaults($extra);
 
-        $response = $this->get('http/sendmsg', $args);
+        try {
+            $response = $this->get('http/sendmsg', $args);
+        } catch (Exception $e) {
+
+            $response = array(
+                'error' => $e->getMessage(),
+                'errorCode' => $e->getCode()
+            );
+        }
+
         !is_int(key($response)) && $response = array($response);
         $return = array();
 

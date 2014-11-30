@@ -79,7 +79,16 @@ class ClickatellRest extends Clickatell
             return (string) $value;
         }, $args['to']);
 
-        $response = $this->get('rest/message', $args, self::HTTP_POST);
+        try {
+            $response = $this->get('rest/message', $args, self::HTTP_POST);
+        } catch (Exception $e) {
+
+            $response = array(
+                'error' => $e->getMessage(),
+                'errorCode' => $e->getCode()
+            );
+        }
+
         $return = array();
 
         // According to the documentation, we can pretty much assume that
