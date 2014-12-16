@@ -88,6 +88,8 @@ The following are all messaging API's.
 ``` php
 use Clickatell\Component\Transport\TransportHttp;
 
+use Clickatell\Component\Transport\TransportHttps;
+
 use Clickatell\Component\Transport\TransportSoap;
 
 use Clickatell\Component\Transport\TransportXml;
