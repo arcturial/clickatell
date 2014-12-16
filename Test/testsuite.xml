@@ -8,6 +8,7 @@
         <testsuite name="ClickatellApiSuite">
             <file>Cases/Api/ApiTest.php</file>
             <file>Cases/Api/HttpTest.php</file>
+            <file>Cases/Api/HttpsTest.php</file>
             <file>Cases/Api/XmlTest.php</file>
             <file>Cases/Api/SoapTest.php</file>
             <file>Cases/Api/SmtpTest.php</file>

@@ -33,6 +33,10 @@ use Clickatell\Exception\Diagnostic as Diagnostic;
  */
 class Http extends Api implements ApiInterface
 {
+    /**
+     * @var string
+     */
+    protected $baseUrl = 'http://api.clickatell.com';
 
     /**
      * The "sendMsg" HTTP call. Builds up the request and handles the response
@@ -61,7 +65,7 @@ class Http extends Api implements ApiInterface
 
         $this->extractExtra($extra, $packet);
 
-        $result = $this->callApi('http://api.clickatell.com/http/sendmsg', $packet);
+        $result = $this->callApi($this->getUrl('http/sendmsg'), $packet);
 
         $result = $this->extract($result, true);
         $error = false;
@@ -99,7 +103,7 @@ class Http extends Api implements ApiInterface
         $packet['api_id'] = $this->auth['api_id'];
 
         $result = $this->callApi(
-            'http://api.clickatell.com/http/getbalance',
+            $this->getUrl('http/getbalance'),
             $packet
         );
 
@@ -135,7 +139,7 @@ class Http extends Api implements ApiInterface
         // Gather packet
         $packet['apiMsgId'] = $apiMsgId;
 
-        $result = $this->callApi('http://api.clickatell.com/http/querymsg', $packet);
+        $result = $this->callApi($this->getUrl('http/querymsg'), $packet);
 
         $result = $this->extract($result);
 
@@ -172,7 +176,7 @@ class Http extends Api implements ApiInterface
         $packet['msisdn'] = $msisdn;
 
         $result = $this->callApi(
-            'http://api.clickatell.com/utils/routeCoverage',
+            $this->getUrl('utils/routeCoverage'),
             $packet
         );
 
@@ -210,7 +214,7 @@ class Http extends Api implements ApiInterface
         $packet['apiMsgId'] = $apiMsgId;
 
         $result = $this->callApi(
-            'http://api.clickatell.com/http/getmsgcharge',
+            $this->getUrl('http/getmsgcharge'),
             $packet
         );
 
@@ -239,4 +243,13 @@ class Http extends Api implements ApiInterface
      *
      */
     public function stopMessage($apiMsgId) {}
+
+
+    protected function getUrl($path)
+    {
+        $pathParts = array_filter(explode('/', $path));
+        $parts = array($this->baseUrl);
+        $parts = array_merge($parts, $pathParts);
+        return implode('/', $parts);
+    }
 }
