@@ -44,6 +44,12 @@ class Clickatell
     const HTTP_API = "Clickatell\Api\Http";
 
     /**
+     * The HTTPS Transport Interface
+     * @var string
+     */
+    const HTTPS_API = "Clickatell\Api\Https";
+
+    /**
      * The XML Transport Interface
      * @var string
      */

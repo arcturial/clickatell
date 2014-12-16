@@ -19,6 +19,7 @@ namespace Clickatell\Test\Cases\Api;
 // Add's an autoloader to load test dependencies
 require_once __DIR__ . "/../../autoload.php";
 
+use Clickatell\Api\Http;
 use \PHPUnit_Framework_TestCase as PHPUnit_Framework_TestCase;
 use Clickatell\Exception\Diagnostic as Diagnostic;
 
@@ -35,6 +36,11 @@ use Clickatell\Exception\Diagnostic as Diagnostic;
 class HttpTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * the translate interface used.
+     * @var \Clickatell\Component\Translate\TranslateInterface
+     */
+    private $translate;
+    /**
      * The transport object used, Instance of HTTP API
      * @var Clickatell\Api\Http
      */
@@ -49,7 +55,7 @@ class HttpTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         // Mock the translate interface
-        $translate = $this->getMock(
+        $this->translate = $this->getMock(
             "Clickatell\Component\Translate\TranslateInterface"
         );
 
@@ -57,7 +63,7 @@ class HttpTest extends PHPUnit_Framework_TestCase
         $this->_transport = $this->getMock(
             'Clickatell\Api\Http',
             array('callApi'),
-            array($translate)
+            array($this->translate)
         );
     }
 
@@ -221,5 +227,42 @@ class HttpTest extends PHPUnit_Framework_TestCase
         $this->assertSame($status, $result['result']['response']['status']);
         $this->assertSame($status_msg, $result['result']['response']['description']);
         $this->assertSame((float) $charge, $result['result']['response']['charge']);
+    }
+
+    /**
+     * @dataProvider provideUrls
+     *
+     * @param $path
+     * @param $expected
+     */
+    public function testGetUrl($path, $expected)
+    {
+        $http = new HttpDummy();
+        $this->assertEquals($expected, $http->getUrl($path));
+    }
+
+    public function provideUrls()
+    {
+        return array(
+            array('http/sendmsg', 'http://api.clickatell.com/http/sendmsg'),
+            array('/http/sendmsg', 'http://api.clickatell.com/http/sendmsg'),
+            array('http/getbalance', 'http://api.clickatell.com/http/getbalance'),
+            array('http/getmsgcharge', 'http://api.clickatell.com/http/getmsgcharge'),
+        );
+    }
+}
+
+/**
+ * Class HttpDummy used to make getUrl method public
+ *
+ * @package Clickatell\Test\Cases\Api
+ */
+class HttpDummy extends Http {
+
+    function __construct() {}
+
+    public function getUrl($path)
+    {
+        return parent::getUrl($path);
     }
 }
