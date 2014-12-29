@@ -1,4 +1,4 @@
+build/
 vendor/
-stage.php
+/stage.php
 composer.phar
-composer.lock
