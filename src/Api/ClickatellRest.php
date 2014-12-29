@@ -100,7 +100,7 @@ class ClickatellRest extends Clickatell
                 'id'            => (isset($entry['apiMessageId'])) ? $entry['apiMessageId'] : false,
                 'destination'   => (isset($entry['to'])) ? $entry['to'] : $args['to'],
                 'error'         => (isset($entry['error'])) ? $entry['error']['description'] : false,
-                'errorCode'     => (isset($entry['code'])) ? $entry['code']['code'] : false
+                'errorCode'     => (isset($entry['code'])) ? $entry['error']['code'] : false
             );
         }
 
