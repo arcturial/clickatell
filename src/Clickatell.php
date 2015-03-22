@@ -100,40 +100,4 @@ abstract class Clickatell implements TransportInterface
 
         return new Decoder($result, $httpCode);
     }
-
-    /**
-     * Triggers if a clickatell MT callback has been received by the page.
-     *
-     * @param Closure $closure The callable function
-     *
-     * @return boolean
-     */
-    /*
-    public static function parseCallback(Closure $closure)
-    {
-        $required = array_flip(
-            array(
-                'apiMsgId',
-                'cliMsgId',
-                'to',
-                'timestamp',
-                'from',
-                'status',
-                'charge'
-            )
-        );
-
-        $values = array_intersect_key($_GET, $required);
-        $diff = array_diff_key($required, $values);
-
-        // If there are no difference, then it means the callback
-        // passed all the required values.
-        if (empty($diff))
-        {
-            return call_user_func_array($closure, array($values));
-        }
-
-        return false;
-    }
-    */
 }
