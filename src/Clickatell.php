@@ -88,11 +88,14 @@ abstract class Clickatell implements TransportInterface
         $uri = ($this->secure ? 'https' : 'http') . '://' . $host . "/" . $uri;
         $method == "GET" && $uri = $uri . "?"  . $data;
 
+        $curlInfo = curl_version();
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $uri);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'ClickatellPHP/2.1 curl/' . $curlInfo['version'] . ' PHP/' . phpversion());
         ($method == "POST") && curl_setopt($ch, CURLOPT_POST, 1) && curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
         $result = curl_exec($ch);
