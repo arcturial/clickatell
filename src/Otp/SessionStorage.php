@@ -30,7 +30,7 @@ class SessionStorage implements StorageInterface
      */
     public function __construct($force = false)
     {
-        if (!session_id() && $force) session_start();
+        if (!session_id() || $force) session_start();
     }
 
     /**
