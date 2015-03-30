@@ -159,3 +159,69 @@ Callback::parseCallback(function ($values) {
 
 ?>
 ```
+
+7. Symfony Bundle
+-----------------
+
+In order to start using the bundle, you first need to register it within your `AppKernel.php`
+
+``` php
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        $bundles = array(
+            ...
+            new Clickatell\Bundle\ClickatellBundle()
+        );
+
+        return $bundles;
+    }
+}
+```
+
+You also need to specify your Clickatell credentials in your application config. In this example I will be using [YAML](http://yaml.org/).
+
+``` yaml
+
+clickatell:
+    class: Clickatell\Api\ClickatellHttp
+    arguments: [ "username", "password", "api_id" ]
+
+```
+
+### The 'class' parameter
+
+The class parameter can be any class that inherits from `Clickatell\Clickatell`. The default value for this is `Clickatell\Api\ClickatellHttp`
+
+### The 'arguments' parameter
+
+This parameter will be the constructor arguments for your class. What you specify here will depend on what your class takes as constructor arguments.
+
+The `Clickatell\Api\ClickatellRest` class takes one argument which is your API token (issued by Clickatell)
+
+The `Clickatell\Api\ClickatellHttp` class takes three arguments which is your username, password and api ID (issued by Clickatell)
+
+
+### The bundle usage
+
+Once you have configured the component. You can utilize it in your controllers like so.
+
+``` php
+
+class DefaultController extends Controller
+{
+    public function indexAction()
+    {
+        ...
+
+        $clickatell = $this->get('clickatell');
+
+        $response = $clickatell->sendMessage(["number", "number2"], "My Text Message");
+
+        ...
+    }
+}
+
+
+```
