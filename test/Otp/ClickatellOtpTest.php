@@ -78,7 +78,7 @@ class ClickatellOtpTest extends PHPUnit_Framework_TestCase
 
         $this->storage->expects($this->once())
             ->method('get')
-            ->with($to)
+            ->with(md5($to))
             ->will($this->returnValue($token));
 
         $clickatell = new ClickatellOtp($this->message, $this->storage);
@@ -101,7 +101,7 @@ class ClickatellOtpTest extends PHPUnit_Framework_TestCase
         $id = $clickatell->sendPin($to);
         $this->assertSame($return->id, $id);
 
-        $token = $storage->get($to);
+        $token = $storage->get(md5($to));
         $this->assertTrue($clickatell->verifyPin($to, $token));
     }
 }
