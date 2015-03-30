@@ -160,7 +160,38 @@ Callback::parseCallback(function ($values) {
 ?>
 ```
 
-7. Symfony Bundle
+7. OTP/Two-Factor Authentication
+--------------------------------
+
+The library has built in support for sending OTPs (One Time Pins) to verify the identity of a user. This is helpful as a second step during authentication or to validate that the person you are interacting with is a real entity.
+
+``` php
+use Clickatell\Otp\SessionStorage;
+use Clickatell\Otp\ClickatellOtp;
+use Clickatell\Api\Rest;
+
+// Define the OTP storage mechanism. Passing "true" means
+// a new session will forcibly started.
+$storage = new SessionStorage(true);
+$api = new Rest([token]);
+
+$otp = new ClickatellOtp($api, $storage);
+
+$otp->setMessage("My custom OTP message. OTP here %s"); // The %s will be replaced with the token
+
+$otp->sendPin([number]); // Passing a second argument will assign a unique reference to the token.
+
+...
+
+// If you passed a second argument while sending the pin, you must now pass it as a third argument.
+// The token is the pin you received via SMS. This step is usually done on a form submit.
+$return = $otp->verifyPin([number], [token]);
+
+// $return = true OR false
+
+```
+
+8. Symfony Bundle
 -----------------
 
 In order to start using the bundle, you first need to register it within your `AppKernel.php`
