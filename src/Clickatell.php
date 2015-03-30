@@ -34,6 +34,7 @@ abstract class Clickatell implements TransportInterface
     const HTTP_DELETE   = "DELETE";
 
     private $secure = false;
+    private $agent = "ClickatellPHP/2.1";
 
     /**
      * This function serves as the "request" or "invoke" function. This will in turn
@@ -95,12 +96,25 @@ abstract class Clickatell implements TransportInterface
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'ClickatellPHP/2.1 curl/' . $curlInfo['version'] . ' PHP/' . phpversion());
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->agent . ' curl/' . $curlInfo['version'] . ' PHP/' . phpversion());
         ($method == "POST") && curl_setopt($ch, CURLOPT_POST, 1) && curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         return new Decoder($result, $httpCode);
+    }
+
+    /**
+     * Set the user agent for the CURL adapter.
+     *
+     * @param string $agent The agent string
+     *
+     * @return Clickatell
+     */
+    public function setUserAgent($agent)
+    {
+        $this->agent = $agent;
+        return $this;
     }
 }
