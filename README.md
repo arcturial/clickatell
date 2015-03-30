@@ -172,7 +172,7 @@ class AppKernel extends Kernel
     {
         $bundles = array(
             ...
-            new Clickatell\Bundle\ClickatellBundle()
+            new Clickatell\Symfony\ClickatellBundle()
         );
 
         return $bundles;
