@@ -50,7 +50,7 @@ class SessionStorage implements StorageInterface
      */
     public function stash($to, $token)
     {
-        $_SESSION[self::PREFIX . "." . $to] = $token;
+        $_SESSION[$this->key($to)] = $token;
         return $this;
     }
 

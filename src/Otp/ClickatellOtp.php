@@ -91,11 +91,12 @@ class ClickatellOtp
     /**
      * Send a newly generated PIN.
      *
-     * @param string $to The number to send the PIN to
+     * @param string $to     The number to send the PIN to
+     * @param string $unique The improve security, you can specify a unique reference
      *
      * @return string
      */
-    public function sendPin($to)
+    public function sendPin($to, $unique = null)
     {
         $token = $this->generateToken();
         $generated = $this->generateMessage($token);
@@ -104,7 +105,8 @@ class ClickatellOtp
         $id = $message->id;
 
         if (!$id) throw new Exception($message->error, $message->errorCode);
-        $this->storage->stash($to, $token);
+        $key = md5($to . ($unique ? $unique : ''));
+        $this->storage->stash($key, $token);
         return $id;
     }
 
@@ -112,16 +114,19 @@ class ClickatellOtp
      * Verify a PIN based on the message ID it was originally
      * stashed against.
      *
-     * @param string $to    The number
-     * @param string $token The token to verify
+     * @param string $to     The number
+     * @param string $token  The token to verify
+     * @param string $unique The unique ref used when generating the token
      *
      * @return boolean
      */
-    public function verifyPin($to, $token)
+    public function verifyPin($to, $token, $unique = null)
     {
-        if ($this->storage->get($to) == $token)
+        $key = md5($to . ($unique ? $unique : ''));
+
+        if ($this->storage->get($key) == $token)
         {
-            $this->storage->delete($to);
+            $this->storage->delete($key);
             return true;
         }
 
