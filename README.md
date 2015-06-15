@@ -160,6 +160,23 @@ Callback::parseCallback(function ($values) {
 ?>
 ```
 
+Similarly, you can listen for Two-Way (MO) callbacks by using the `Callback::parseMoCallback();` method.
+
+Parameters: api_id, moMsgId, from, to, timestamp, network, text
+
+``` php
+use Clickatell\Callback;
+
+Callback::parseMoCallback(function ($values) {
+    // var_dump($values);
+    // Contains: api_id, moMsgId, from, to, timestamp, network, text
+    // Optional: charset, udh
+});
+
+?>
+
+**Note:** You can restrict the "referer" by specifing the `Callback::$restrictIP = true` setting. If you wish to alter the allowed IP list you can do so with `Callback::$allowedIPs = array();`
+
 7. OTP/Two-Factor Authentication
 --------------------------------
 
