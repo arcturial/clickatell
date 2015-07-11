@@ -15,7 +15,6 @@ This library allows easy access to connecting the [Clickatell's](http://www.clic
 
 
 ## Installation
-------------------
 
 This library uses [composer](http://www.getcomposer.org) and can be acquired using the following in your composer.json file.
 
@@ -28,7 +27,6 @@ This library uses [composer](http://www.getcomposer.org) and can be acquired usi
 ```
 
 ## Usage
-------------------
 
 The library currently supports the `ClickatellHttp` and `ClickatellRest` adapters.
 
@@ -98,14 +96,12 @@ public function getMessageCharge($apiMsgId);
 ```
 
 ### Extra Parameters in sendMessage
---------------------------------------
 
 For usability purposes the `sendMessage` call focuses on the recipients and the content. In order to specify and of the additional parameters defined
 in the [Clickatell document](http://www.clickatell.com), you can use the `extra` parameter and pass them as an array.
 
 
 ## Events
----------------
 
 The library comes with a `ClickatellEvent` class which is a wrapper for any of the other transports. This class
 can assist you with debugging or logging API interactions.
@@ -149,7 +145,6 @@ $event->sendMessage(array(1111111111), "My Message");
 
 
 ## Callbacks
----------------
 
 You can listen to clickatell callbacks by using the `Callback::parseCallback();` function. It's a helper function
 to make sure the required parameters are including in the `$_GET` array.
@@ -188,7 +183,6 @@ Callback::parseMoCallback(function ($values) {
 **Note:** You can restrict the "referer" by specifing the `Callback::$restrictIP = true` setting. If you wish to alter the allowed IP list you can do so with `Callback::$allowedIPs = array();`
 
 ## OTP/Two-Factor Authentication
---------------------------------
 
 The library has built in support for sending OTPs (One Time Pins) to verify the identity of a user. This is helpful as a second step during authentication or to validate that the person you are interacting with is a real entity.
 
@@ -219,7 +213,6 @@ $return = $otp->verifyPin([number], [token]);
 ```
 
 ## Symfony Bundle
------------------
 
 In order to start using the bundle, you first need to register it within your `AppKernel.php`
 
