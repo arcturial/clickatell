@@ -5,8 +5,16 @@ Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?b
 
 This library allows easy access to connecting the [Clickatell's](http://www.clickatell.com) different messenging API's.
 
-1. Installation
-------------------
+* [Installation](#installation)
+* [Usage](#usage)
+* [Supported API calls](#supported-api-calls)
+* [Events](#events)
+* [Callbacks](#callbacks)
+* [OTP/Two-Factor Authentication](#otptwo-factor-authentication)
+* [Symfony Bundle](#symfony-bundle)
+
+
+## Installation
 
 This library uses [composer](http://www.getcomposer.org) and can be acquired using the following in your composer.json file.
 
@@ -18,8 +26,7 @@ This library uses [composer](http://www.getcomposer.org) and can be acquired usi
 }
 ```
 
-2. Usage
-------------------
+## Usage
 
 The library currently supports the `ClickatellHttp` and `ClickatellRest` adapters.
 
@@ -67,7 +74,7 @@ foreach ($response as $message) {
 
 The `sendMessage` call `to` parameter can take an array of numbers. If you specify only a single number like `$clickatell->sendMessage(1111111111, "Message")` the library will automatically convert it to an array for your convenience.
 
-3. Supported API calls
+## Supported API calls
 ------------------
 
 The available calls are defined in the `Clickatell\TransportInterface` interface.
@@ -88,9 +95,13 @@ public function getMessageCharge($apiMsgId);
 
 ```
 
+### Extra Parameters in sendMessage
 
-4. Events
----------------
+For usability purposes the `sendMessage` call focuses on the recipients and the content. In order to specify and of the additional parameters defined
+in the [Clickatell document](http://www.clickatell.com), you can use the `extra` parameter and pass them as an array.
+
+
+## Events
 
 The library comes with a `ClickatellEvent` class which is a wrapper for any of the other transports. This class
 can assist you with debugging or logging API interactions.
@@ -132,15 +143,8 @@ $event->sendMessage(array(1111111111), "My Message");
 ?>
 ```
 
-5. Dealing with extra parameters in sendMessage
---------------------------------------
 
-For usability purposes the `sendMessage` call focuses on the recipients and the content. In order to specify and of the additional parameters defined
-in the [Clickatell document](http://www.clickatell.com), you can use the `extra` parameter and pass them as an array.
-
-
-6. Callbacks
----------------
+## Callbacks
 
 You can listen to clickatell callbacks by using the `Callback::parseCallback();` function. It's a helper function
 to make sure the required parameters are including in the `$_GET` array.
@@ -160,8 +164,25 @@ Callback::parseCallback(function ($values) {
 ?>
 ```
 
-7. OTP/Two-Factor Authentication
---------------------------------
+Similarly, you can listen for Two-Way (MO) callbacks by using the `Callback::parseMoCallback();` method.
+
+Parameters: api_id, moMsgId, from, to, timestamp, network, text
+
+``` php
+use Clickatell\Callback;
+
+Callback::parseMoCallback(function ($values) {
+    // var_dump($values);
+    // Contains: api_id, moMsgId, from, to, timestamp, network, text
+    // Optional: charset, udh
+});
+
+?>
+```
+
+**Note:** You can restrict the "referer" by specifing the `Callback::$restrictIP = true` setting. If you wish to alter the allowed IP list you can do so with `Callback::$allowedIPs = array();`
+
+## OTP/Two-Factor Authentication
 
 The library has built in support for sending OTPs (One Time Pins) to verify the identity of a user. This is helpful as a second step during authentication or to validate that the person you are interacting with is a real entity.
 
@@ -191,8 +212,7 @@ $return = $otp->verifyPin([number], [token]);
 
 ```
 
-8. Symfony Bundle
------------------
+## Symfony Bundle
 
 In order to start using the bundle, you first need to register it within your `AppKernel.php`
 
