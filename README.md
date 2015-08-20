@@ -70,6 +70,18 @@ foreach ($response as $message) {
 
 ```
 
+### Using HTTPS
+
+In order to send over HTTPS you can just call `secure(true)` on the API object:
+
+```
+php
+use Clickatell\Api\ClickatellRest;
+
+$clickatell = new ClickatellRest($token);
+$clickatell->secure(true);
+```
+
 ### Sending to multiple numbers
 
 The `sendMessage` call `to` parameter can take an array of numbers. If you specify only a single number like `$clickatell->sendMessage(1111111111, "Message")` the library will automatically convert it to an array for your convenience.
