@@ -37,6 +37,19 @@ abstract class Clickatell implements TransportInterface
     private $agent = "ClickatellPHP/2.1";
 
     /**
+     * Use https or http
+     *
+     * @param boolean $secure Use https or http
+     *
+     * @return Clickatell
+     */
+    public function secure($secure)
+    {
+        $this->secure = $secure;
+        return $this;
+    }
+
+    /**
      * This function serves as the "request" or "invoke" function. This will in turn
      * call the API or whatever resource is required to complete the task. Each adapter
      * should overwrite this function with the appropriate logic.
