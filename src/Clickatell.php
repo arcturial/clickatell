@@ -86,7 +86,7 @@ abstract class Clickatell implements TransportInterface
      * accross multiple API types.
      *
      * @param string $uri     The endpoint
-     * @param strong $data    POST data or query string
+     * @param string $data    POST data or query string
      * @param array  $headers Header array
      * @param string $method  HTTP method
      *
