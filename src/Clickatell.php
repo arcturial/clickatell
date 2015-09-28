@@ -100,7 +100,9 @@ abstract class Clickatell implements TransportInterface
 
         $uri = ltrim($uri, "/");
         $uri = ($this->secure ? 'https' : 'http') . '://' . $host . "/" . $uri;
-        $method == "GET" && $uri = $uri . "?"  . $data;
+        if ($method === "GET" && !empty($data)) {
+            $uri = $uri."?".$data;
+        }
 
         $curlInfo = curl_version();
 
