@@ -86,7 +86,7 @@ abstract class Clickatell implements TransportInterface
      * accross multiple API types.
      *
      * @param string $uri     The endpoint
-     * @param strong $data    POST data or query string
+     * @param string $data    POST data or query string
      * @param array  $headers Header array
      * @param string $method  HTTP method
      *
@@ -100,7 +100,9 @@ abstract class Clickatell implements TransportInterface
 
         $uri = ltrim($uri, "/");
         $uri = ($this->secure ? 'https' : 'http') . '://' . $host . "/" . $uri;
-        $method == "GET" && $uri = $uri . "?"  . $data;
+        if ($method === "GET" && !empty($data)) {
+            $uri = $uri."?".$data;
+        }
 
         $curlInfo = curl_version();
 

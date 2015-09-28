@@ -59,8 +59,15 @@ class ClickatellRest extends Clickatell
      */
     protected function get($uri, $args, $method = self::HTTP_GET)
     {
-        $data = json_encode($args);
-        $response = $this->curl($uri, $data, $this->getHeaders(), $method);
+        if ($method === 'POST') {
+            $args = json_encode($args);
+        }
+
+        if ($method === 'GET' && !empty($args)) {
+            $args = http_build_query($args);
+        }
+
+        $response = $this->curl($uri, $args, $this->getHeaders(), $method);
         return $response->decodeRest();
     }
 
@@ -144,12 +151,17 @@ class ClickatellRest extends Clickatell
     /**
      * {@inheritdoc}
      */
-    public function getMessageCharge($apiMsgId)
+    public function getMessageCharge($msgId, $cliMsgId = false)
     {
-        $response = $this->get('rest/message/' . $apiMsgId, array());
+        if ($cliMsgId) {
+            $response = $this->get('rest/message', array('clientMessageId' => $msgId));
+        } else {
+            $response = $this->get('rest/message/' . $msgId, array());
+        }
 
         return (object) array(
-            'id'            => $response['apiMessageId'],
+            'apiMsgId'      => $response['apiMessageId'],
+            'cliMsgId'      => isset($response['clientMessageId']) ? $response['clientMessageId'] : null,
             'status'        => $response['messageStatus'],
             'description'   => Diagnostic::getStatus($response['messageStatus']),
             'charge'        => (float) $response['charge']

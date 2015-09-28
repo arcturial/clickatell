@@ -148,15 +148,20 @@ class ClickatellHttp extends Clickatell
     /**
      * {@inheritdoc}
      */
-    public function getMessageCharge($apiMsgId)
+    public function getMessageCharge($msgId, $cliMsgId = false)
     {
-        $response = $this->get('http/getmsgcharge', array('apimsgid' => $apiMsgId));
+        if ($cliMsgId) {
+            $response = $this->get('http/getmsgcharge', array('climsgid' => $msgId));
+        } else {
+            $response = $this->get('http/getmsgcharge', array('apimsgid' => $msgId));
+        }
 
         return (object) array(
-            'id'            => $apiMsgId,
+            'apiMsgId'      => $response['apiMsgId'],
+            'cliMsgId'      => isset($response['cliMsgId']) ? $response['cliMsgId'] : null,
             'status'        => $response['status'],
             'description'   => Diagnostic::getStatus($response['status']),
-            'charge'        => (float) $response['charge']
+            'charge'        => (float)$response['charge']
         );
     }
 
