@@ -89,11 +89,11 @@ interface TransportInterface
     /**
      * API call for "getMsgCharge".
      *
-     * @param string $apiMsgId ApiMsgId to query
+     * @param string $msgId ApiMsgId to query
      *
-     * @throws Exception
+     * @param bool   $cliMsgId is this a client MsgId?
      *
      * @return mixed
      */
-    public function getMessageCharge($apiMsgId);
+    public function getMessageCharge($msgId, $cliMsgId = false);
 }
