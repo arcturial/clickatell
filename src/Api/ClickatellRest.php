@@ -160,6 +160,7 @@ class ClickatellRest extends Clickatell
         }
 
         return (object) array(
+            'id'            => $response['apiMessageId'], // This field allows for backwards compatibility
             'apiMsgId'      => $response['apiMessageId'],
             'cliMsgId'      => isset($response['clientMessageId']) ? $response['clientMessageId'] : null,
             'status'        => $response['messageStatus'],

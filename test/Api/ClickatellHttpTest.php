@@ -107,6 +107,9 @@ class ClickatellHttpTest extends PHPUnit_Framework_TestCase
     {
         $id = "12345";
         $return = array(
+            'id' => $id,
+            'apiMsgId' => $id,
+            'cliMsgId' => null,
             'status' => "003",
             'charge' => 1.0
         );

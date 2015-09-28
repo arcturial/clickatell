@@ -150,13 +150,11 @@ class ClickatellHttp extends Clickatell
      */
     public function getMessageCharge($msgId, $cliMsgId = false)
     {
-        if ($cliMsgId) {
-            $response = $this->get('http/getmsgcharge', array('climsgid' => $msgId));
-        } else {
-            $response = $this->get('http/getmsgcharge', array('apimsgid' => $msgId));
-        }
+        $param = $cliMsgId ? array('climsgid' => $msgId) : array('apimsgid' => $msgId);
+        $response = $this->get('http/getmsgcharge', $param);
 
         return (object) array(
+            'id'            => $response['apiMsgId'], // This field allows for backwards compatibility
             'apiMsgId'      => $response['apiMsgId'],
             'cliMsgId'      => isset($response['cliMsgId']) ? $response['cliMsgId'] : null,
             'status'        => $response['status'],
