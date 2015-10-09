@@ -173,7 +173,7 @@ class ClickatellEvent implements TransportInterface
     /**
      * {@inheritdoc}
      */
-    public function getMessageCharge($apiMsgId)
+    public function getMessageCharge($apiMsgId, $cliMsgId = false)
     {
         $event = __FUNCTION__;
         $args = (object) array(
