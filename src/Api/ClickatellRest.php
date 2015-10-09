@@ -15,6 +15,7 @@ namespace Clickatell\Api;
 
 use Clickatell\Clickatell;
 use Clickatell\Diagnostic;
+use Exception;
 
 /**
  * The REST API usage class.

@@ -13,8 +13,6 @@
 
 namespace Clickatell\Otp;
 
-use \Exception;
-
 /**
  * $_SESSION storage.
  *

@@ -13,6 +13,8 @@
 
 namespace Clickatell;
 
+use Exception;
+
 /**
  * This interface defines the required function for Transport handlers.
  * It also specifies the supported API calls.

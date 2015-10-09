@@ -80,7 +80,7 @@ class ClickatellOtp
      *
      * @param string $message The message to send.
      *
-     * @return Otp
+     * @return ClickatellOtp
      */
     public function setMessage($message)
     {

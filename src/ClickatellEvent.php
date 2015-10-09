@@ -13,8 +13,6 @@
 
 namespace Clickatell;
 
-use Clickatell\TransportInterface;
-
 /**
  * This is a wrapper class that is useful for when you want to track commands
  * for audit or debug purposes.
@@ -60,8 +58,8 @@ class ClickatellEvent implements TransportInterface
     /**
      * Trigger a specific response event
      *
-     * @param string $event The event name
-     * @param object $obj   The response
+     * @param string       $event The event name
+     * @param mixed|object $obj   The response
      *
      * @return object
      */
