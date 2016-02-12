@@ -93,7 +93,7 @@ class ClickatellHttp extends Clickatell
                 'id'            => (isset($entry['ID'])) ? $entry['ID'] : false,
                 'destination'   => (isset($entry['To'])) ? $entry['To'] : $args['to'],
                 'error'         => (isset($entry['error'])) ? $entry['error'] : false,
-                'errorCode'     => (isset($entry['code'])) ? $entry['code'] : false
+                'errorCode'     => (isset($entry['errorCode'])) ? $entry['errorCode'] : false
             );
         }
 
