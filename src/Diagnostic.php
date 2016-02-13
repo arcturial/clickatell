@@ -40,6 +40,7 @@ class Diagnostic
         "010" => "Message expired: Message has expired before we were able to deliver it to the upstream gateway. No charge applies.",
         "011" => "Message queued for later delivery: Message has been queued at the gateway for delivery at a later time (delayed delivery).",
         "012" => "Out of credit: The message cannot be delivered due to a lack of funds in your account. Please re-purchase credits.",
+        "014" => "Maximum MT limit exceeded: The allowable amount for MT messaging has been exceeded.",
     );
 
     /**
