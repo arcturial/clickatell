@@ -78,7 +78,7 @@ class ClickatellHttp extends Clickatell
 
             $response = array(
                 'error' => $e->getMessage(),
-                'errorCode' => $e->getCode()
+                'code' => $e->getCode()
             );
         }
 
