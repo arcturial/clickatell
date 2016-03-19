@@ -101,7 +101,6 @@ class Callback
                 'from',
                 'to',
                 'timestamp',
-                'network',
                 'text'
             )
         );
@@ -109,7 +108,8 @@ class Callback
         $optional = array_flip(
             array(
                 'charset',
-                'udh'
+                'udh',
+                'network'
             )
         );
 
