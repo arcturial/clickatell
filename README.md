@@ -185,8 +185,8 @@ use Clickatell\Callback;
 
 Callback::parseMoCallback(function ($values) {
     // var_dump($values);
-    // Contains: api_id, moMsgId, from, to, timestamp, network, text
-    // Optional: charset, udh
+    // Contains: api_id, moMsgId, from, to, timestamp, text
+    // Optional: charset, udh, network
 });
 
 ?>
