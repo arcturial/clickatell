@@ -108,8 +108,8 @@ class CallbackTest extends PHPUnit_Framework_TestCase
             'from' => 3,
             'to' => 4,
             'timestamp' => 5,
-            'network' => 6,
-            'text' => 7
+            'text' => 7,
+            'network' => 6
         );
 
         Callback::parseMoCallback(function ($args) use (&$data) {
