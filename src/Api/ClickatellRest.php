@@ -87,17 +87,17 @@ class ClickatellRest extends Clickatell
             return (string) $value;
         }, $args['to']);
 
+        $return = array();
         try {
             $response = $this->get('rest/message', $args, self::HTTP_POST);
         } catch (Exception $e) {
-
-            $response = array(
-                'error' => $e->getMessage(),
-                'errorCode' => $e->getCode()
+            $response['message'][] = array(
+                'error' => array (
+                    'description' => $e->getMessage(),
+                    'code' => $e->getCode()
+                )
             );
         }
-
-        $return = array();
 
         // According to the documentation, we can pretty much assume that
         // a response from "rest/message" will contain a "message" key with an
@@ -107,11 +107,10 @@ class ClickatellRest extends Clickatell
             $return[] = (object) array(
                 'id'            => (isset($entry['apiMessageId'])) ? $entry['apiMessageId'] : false,
                 'destination'   => (isset($entry['to'])) ? $entry['to'] : $args['to'],
-                'error'         => (isset($entry['error'])) ? $entry['error']['description'] : false,
-                'errorCode'     => (isset($entry['code'])) ? $entry['error']['code'] : false
+                'error'         => (isset($entry['error']['description'])) ? $entry['error']['description'] : false,
+                'errorCode'     => (isset($entry['error']['code'])) ? $entry['error']['code'] : false
             );
         }
-
         return $return;
     }
 
