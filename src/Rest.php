@@ -26,6 +26,12 @@ class Rest
     const AGENT = 'ClickatellV2/1.0';
 
     /**
+     * Excepted HTTP statuses
+     * @var array
+     */
+    const ACCEPTED_CODES = [200, 201, 202];
+
+    /**
      * @var string
      */
     private $apiToken = '';
@@ -52,7 +58,7 @@ class Rest
     protected function handle($result, $httpCode)
     {
         // Check for non-OK statuses
-        if ($httpCode != 200) {
+        if (!in_array($httpCode, static::ACCEPTED_CODES)) {
             // Decode JSON if possible, if this can't be decoded...something fatal went wrong
             // and we will just return the entire body as an exception.
             if ($error = json_decode($result, true)) {
@@ -61,7 +67,7 @@ class Rest
                 $error = $result;
             }
 
-            throw new \Exception($error);
+            throw new \Clickatell\ClickatellException($error);
         } else {
             return json_decode($result, true);
         }
@@ -121,19 +127,20 @@ class Rest
     public function sendMessage(array $message)
     {
         $response = $this->curl('messages', $message);
-        return $response['messsages'];
+        return $response['messages'];
     }
 
     /**
      * @see https://www.clickatell.com/developers/api-documentation/rest-api-status-callback/
      *
      * @param callable $callback The function to trigger with desired parameters
+     * @param string   $file     The stream or file name, default to standard input
      *
      * @return void
      */
-    public function parseStatusCallback($callback)
+    public static function parseStatusCallback($callback, $file = STDIN)
     {
-        $body = stream_get_contents(STDIN);
+        $body = file_get_contents($file);
 
         $body = json_decode($body, true);
         $keys = [
@@ -159,12 +166,13 @@ class Rest
      * @see https://www.clickatell.com/developers/api-documentation/rest-api-reply-callback/
      *
      * @param callable $callback The function to trigger with desired parameters
+     * @param string   $file     The stream or file name, default to standard input
      *
      * @return void
      */
-    public function parseReplyCallback($callback)
+    public static function parseReplyCallback($callback, $file = STDIN)
     {
-        $body = stream_get_contents(STDIN);
+        $body = file_get_contents($file);
 
         $body = json_decode($body, true);
         $keys = [
