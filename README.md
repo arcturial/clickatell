@@ -35,6 +35,7 @@ try {
     // The API does not return error codes, so it's best to rely on error descriptions.
     var_dump($e->getMessage());
 }
+```
 
 ### Status/Reply Callback
 
