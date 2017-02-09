@@ -1,7 +1,7 @@
-Clickatell V2 SMS Library
-=========================
+PHP library for the Clickatell Platform
+=======================================
 
-This library allows integration with the new [Clickatell](https://portal.clickatell.com) website.
+This library allows integration with the new [Clickatell Platform](https://portal.clickatell.com) website.
 
 ## Usage
 
@@ -61,3 +61,6 @@ Rest::parseReplyCallback(function ($result) {
 
 ```
 
+## Issues/Contributions
+
+Found a bug or missing a feature? Log it [here](https://github.com/clickatell/clickatell-v2/issues) and we will take a look.
