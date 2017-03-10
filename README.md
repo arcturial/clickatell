@@ -1,5 +1,5 @@
-Clickatell SMS Library
-=========================
+PHP library for the Clickatell Platform
+=======================================
 
 Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
 
@@ -65,3 +65,6 @@ Rest::parseReplyCallback(function ($result) {
 
 ```
 
+## Issues/Contributions
+
+Found a bug or missing a feature? Log it [here](https://github.com/clickatell/clickatell-php/issues) and we will take a look.
