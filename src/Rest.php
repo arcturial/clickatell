@@ -27,9 +27,9 @@ class Rest
 
     /**
      * Excepted HTTP statuses
-     * @var array
+     * @var string
      */
-    const ACCEPTED_CODES = [200, 201, 202];
+    const ACCEPTED_CODES = '200, 201, 202';
 
     /**
      * @var string
@@ -58,7 +58,9 @@ class Rest
     protected function handle($result, $httpCode)
     {
         // Check for non-OK statuses
-        if (!in_array($httpCode, static::ACCEPTED_CODES)) {
+        $codes = explode(",", static::ACCEPTED_CODES);
+
+        if (!in_array($httpCode, $codes)) {
             // Decode JSON if possible, if this can't be decoded...something fatal went wrong
             // and we will just return the entire body as an exception.
             if ($error = json_decode($result, true)) {
