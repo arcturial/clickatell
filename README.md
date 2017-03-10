@@ -1,5 +1,7 @@
-Clickatell V2 SMS Library
+Clickatell SMS Library
 =========================
+
+Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
 
 This library allows integration with the new [Clickatell](https://portal.clickatell.com) website.
 
