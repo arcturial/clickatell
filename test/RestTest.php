@@ -18,7 +18,7 @@ class RestTest extends PHPUnit_Framework_TestCase
 
         $message = current($result['messages']);
         $this->assertSame($message['error'], 'Invalid destination address.');
-        $this->assertSame($message['apiMsgId'], null);
+        $this->assertSame($message['apiMessageId'], null);
         $this->assertSame($message['accepted'], false);
 
         // Test error scenario
