@@ -1,13 +1,12 @@
 {
-    "name": "arcturial/clickatell",
+    "name": "arcturial/clickatell-v2",
     "type": "library",
     "description": "Standalone PHP library to integrate with the Clickatell SMS gateway",
-    "homepage": "http://www.cainsvault.com",
+    "homepage": "https://arcturial.github.com",
     "license": "GNU General Public License",
     "authors": [
         {
-            "name": "Chris Brand",
-            "email": "webmaster@cainsvault.com"
+            "name": "Chris Brand"
         }
     ],
     "require": {
@@ -15,11 +14,6 @@
     },
     "require-dev": {
         "phpunit/phpunit": "4.3.*"
-    },
-    "suggest": {
-        "symfony/dependency-injection": "For usage with the Symfony Framework",
-        "symfony/config": "For usage with the Symfony Framework",
-        "symfony/http-kernel": "For usage with the Symfony Framework"
     },
     "autoload": {
         "psr-4": {

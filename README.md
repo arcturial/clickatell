@@ -1,290 +1,65 @@
-Clickatell SMS Messenger Library
-================================
+Clickatell V2 SMS Library
+=========================
 
-Master: [![Build Status](https://secure.travis-ci.org/arcturial/clickatell.png?branch=master)](http://travis-ci.org/arcturial/clickatell)
+This library allows integration with the new [Clickatell](https://portal.clickatell.com) website.
 
-This library allows easy access to connecting the [Clickatell's](http://www.clickatell.com) different messenging API's.
-
-* [Installation](#installation)
-* [Usage](#usage)
-* [Supported API calls](#supported-api-calls)
-* [Events](#events)
-* [Callbacks](#callbacks)
-* [OTP/Two-Factor Authentication](#otptwo-factor-authentication)
-* [Symfony Bundle](#symfony-bundle)
-
-
-## Installation
-
-This library uses [composer](http://www.getcomposer.org) and can be acquired using the following in your composer.json file.
-
-``` json
-{
-    "require": {
-        "arcturial/clickatell": "*"
-    }
-}
-```
+**Please Note:** Customers with accounts registered on the old [central.clickatell.com](https://central.clickatell.com) should use the tagged released or dev branches for version 2 of the repository, version 3 and up is for the new platform and older accounts will not work with this.
 
 ## Usage
 
-The library currently supports the `ClickatellHttp` and `ClickatellRest` adapters.
-
-### HTTP API
+The new APIs only support `sendMessage` call and webhooks for outgoing and inbound messages via a *RESTful* interface.
 
 ``` php
-use Clickatell\Api\ClickatellHttp;
-
-$clickatell = new ClickatellHttp($username, $password, $apiID);
-$response = $clickatell->sendMessage(array(1111111111), "My Message");
-
-foreach ($response as $message) {
-    echo $message->id;
-
-    // Message response fields:
-    // $message->id
-    // $message->destination
-    // $message->error
-    // $message->errorCode
-}
-
-```
-
-### REST API
-
-``` php
-use Clickatell\Api\ClickatellRest;
-
-$clickatell = new ClickatellRest($token);
-$response = $clickatell->sendMessage(array(1111111111), "My Message");
-
-foreach ($response as $message) {
-    echo $message->id;
-
-    // Message response fields:
-    // $message->id
-    // $message->destination
-    // $message->error
-    // $message->errorCode
-}
-
-```
-
-### Using HTTPS
-
-In order to send over HTTPS you can just call `secure(true)` on the API object:
-
-```
-php
-use Clickatell\Api\ClickatellRest;
-
-$clickatell = new ClickatellRest($token);
-$clickatell->secure(true);
-```
-
-### Sending to multiple numbers
-
-The `sendMessage` call `to` parameter can take an array of numbers. If you specify only a single number like `$clickatell->sendMessage(1111111111, "Message")` the library will automatically convert it to an array for your convenience.
-
-## Supported API calls
-------------------
-
-The available calls are defined in the `Clickatell\TransportInterface` interface.
-
-``` php
-
-public function sendMessage($to, $message, $extra = array());
-
-public function getBalance();
-
-public function stopMessage($apiMsgId);
-
-public function queryMessage($apiMsgId);
-
-public function routeCoverage($msisdn);
-
-public function getMessageCharge($apiMsgId);
-
-```
-
-### Extra Parameters in sendMessage
-
-For usability purposes the `sendMessage` call focuses on the recipients and the content. In order to specify and of the additional parameters defined
-in the [Clickatell document](http://www.clickatell.com), you can use the `extra` parameter and pass them as an array.
-
-
-## Events
-
-The library comes with a `ClickatellEvent` class which is a wrapper for any of the other transports. This class
-can assist you with debugging or logging API interactions.
-
-This class uses the [Proxy Pattern](http://en.wikipedia.org/wiki/Proxy_pattern).
-
-``` php
-<?php
-
-use Clickatell\Api\ClickatellHttp;
-use Clickatell\ClickatellEvent;
-use Clickatell\Event;
-
-$clickatell = new ClickatellHttp($username, $password, $apiID);
-$event = new ClickatellEvent($clickatell);
-
-$event->onRequest(function ($event, $args) {
-
-    var_dump($event);
-    var_dump($args->to);
-    var_dump($args->message);
-    var_dump($args->extra);
-
-    // The parameters in the event object depend on the type of event.
-    // The event constants are available in the Clickatell\Event class.
-});
-
-$event->onResponse(function ($event, $obj) {
-
-    var_dump($event);
-    var_dump($obj);
-
-    // The $obj variable is the same as the response you would get back. So
-    // in the case of sendMessage it will be an array of message responses.
-});
-
-$event->sendMessage(array(1111111111), "My Message");
-
-?>
-```
-
-
-## Callbacks
-
-You can listen to clickatell callbacks by using the `Callback::parseCallback();` function. It's a helper function
-to make sure the required parameters are including in the `$_GET` array.
-
-Parameters: apiMsgId, cliMsgId, to, timestamp, from, status, charge
-
-Example
-
-``` php
-use Clickatell\Callback;
-
-Callback::parseCallback(function ($values) {
-    // var_dump($values);
-    // Contains: apiMsgId, cliMsgId, to, timestamp, from, status, charge
-});
-
-?>
-```
-
-Similarly, you can listen for Two-Way (MO) callbacks by using the `Callback::parseMoCallback();` method.
-
-Parameters: api_id, moMsgId, from, to, timestamp, network, text
-
-``` php
-use Clickatell\Callback;
-
-Callback::parseMoCallback(function ($values) {
-    // var_dump($values);
-    // Contains: api_id, moMsgId, from, to, timestamp, text
-    // Optional: charset, udh, network
-});
-
-?>
-```
-
-**Note:** You can restrict the "referer" by specifing the `Callback::$restrictIP = true` setting. If you wish to alter the allowed IP list you can do so with `Callback::$allowedIPs = array();`
-
-## OTP/Two-Factor Authentication
-
-The library has built in support for sending OTPs (One Time Pins) to verify the identity of a user. This is helpful as a second step during authentication or to validate that the person you are interacting with is a real entity.
-
-``` php
-use Clickatell\Otp\SessionStorage;
-use Clickatell\Otp\ClickatellOtp;
-use Clickatell\Api\Rest;
-
-// Define the OTP storage mechanism. Passing "true" means
-// a new session will forcibly started.
-$storage = new SessionStorage(true);
-$api = new Rest([token]);
-
-$otp = new ClickatellOtp($api, $storage);
-
-$otp->setMessage("My custom OTP message. OTP here %s"); // The %s will be replaced with the token
-
-$otp->sendPin([number]); // Passing a second argument will assign a unique reference to the token.
-
-...
-
-// If you passed a second argument while sending the pin, you must now pass it as a third argument.
-// The token is the pin you received via SMS. This step is usually done on a form submit.
-$return = $otp->verifyPin([number], [token]);
-
-// $return = true OR false
-
-```
-
-## Symfony Bundle
-
-In order to start using the bundle, you first need to register it within your `AppKernel.php`
-
-``` php
-class AppKernel extends Kernel
-{
-    public function registerBundles()
-    {
-        $bundles = array(
-            ...
-            new Clickatell\Symfony\ClickatellBundle()
-        );
-
-        return $bundles;
+use Clickatell\Rest;
+use Clickatell\ClickatellException;
+
+$clickatell = new \Clickatell\Rest('token');
+
+// Full list of support parameters can be found at https://www.clickatell.com/developers/api-documentation/rest-api-request-parameters/
+try {
+    $result = $clickatell->sendMessage(['to' => ['27111111111'], 'content' => 'Message Content']);
+
+    foreach ($result['messages'] as $message) {
+        var_dump($message);
+
+        /*
+        [
+            'apiMsgId'  => null|string,
+            'accepted'  => boolean,
+            'to'        => string,
+            'error'     => null|string
+        ]
+        */
     }
+
+} catch (ClickatellException $e) {
+    // Any API call error will be thrown and should be handled appropriately.
+    // The API does not return error codes, so it's best to rely on error descriptions.
+    var_dump($e->getMessage());
 }
 ```
 
-You also need to specify your Clickatell credentials in your application config. In this example I will be using [YAML](http://yaml.org/).
+### Status/Reply Callback
 
-``` yaml
-
-clickatell:
-    class: Clickatell\Api\ClickatellHttp
-    arguments: [ "username", "password", "api_id" ]
-
-```
-
-### The 'class' parameter
-
-The class parameter can be any class that inherits from `Clickatell\Clickatell`. The default value for this is `Clickatell\Api\ClickatellHttp`
-
-### The 'arguments' parameter
-
-This parameter will be the constructor arguments for your class. What you specify here will depend on what your class takes as constructor arguments.
-
-The `Clickatell\Api\ClickatellRest` class takes one argument which is your API token (issued by Clickatell)
-
-The `Clickatell\Api\ClickatellHttp` class takes three arguments which is your username, password and api ID (issued by Clickatell)
-
-
-### The bundle usage
-
-Once you have configured the component. You can utilize it in your controllers like so.
+After configuring your webhooks/callbacks inside the developer portal, you can use the static callback methods to listen for web requests from Clickatell. These callbacks will extract the supported fields from the request body.
 
 ``` php
+use Clickatell\Rest;
+use Clickatell\ClickatellException;
 
-class DefaultController extends Controller
-{
-    public function indexAction()
-    {
-        ...
+// Outgoing traffic callbacks (MT callbacks)
+Rest::parseStatusCallback(function ($result) {
+    var_dump($result);
+    // This will execute if the request to the web page contains all the values
+    // specified by Clickatell. Requests that omit these values will be ignored.
+});
 
-        $clickatell = $this->get('clickatell');
-
-        $response = $clickatell->sendMessage(["number", "number2"], "My Text Message");
-
-        ...
-    }
-}
-
+// Incoming traffic callbacks (MO/Two Way callbacks)
+Rest::parseReplyCallback(function ($result) {
+    var_dump($result);
+    // This will execute if the request to the web page contains all the values
+    // specified by Clickatell. Requests that omit these values will be ignored.
+});
 
 ```
+
