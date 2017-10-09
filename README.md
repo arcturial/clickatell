@@ -64,7 +64,3 @@ Rest::parseReplyCallback(function ($result) {
 });
 
 ```
-
-## Issues/Contributions
-
-Found a bug or missing a feature? Log it [here](https://github.com/clickatell/clickatell-php/issues) and we will take a look.
