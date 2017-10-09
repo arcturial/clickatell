@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Standalone PHP library to integrate with the Clickatell SMS gateway",
     "homepage": "https://arcturial.github.com",
-    "license": "GNU General Public License",
+    "license": "MIT",
     "authors": [
         {
             "name": "Chris Brand"
